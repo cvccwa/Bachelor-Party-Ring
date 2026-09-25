@@ -99,10 +99,10 @@ export default function ReportPage() {
 
       <h1>What did you win?</h1>
       <p className="sub">Tap the game. That&apos;s it.</p>
-      <div className="games">
+      <div className="games report-games">
         {CONFIG.games.map((g) => (
           <button key={g} className="game" disabled={busy || ended} onClick={(e) => report(g, e)}>
-            <GameIcon game={g} size={44} className="icon" />
+            <GameIcon game={g} size={34} className="icon" />
             {GAME_LABELS[g] ?? g}
           </button>
         ))}
