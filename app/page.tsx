@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useToast } from "@/components/Toast";
 import { buzz, useBurst } from "@/components/Burst";
 import { GameIcon } from "@/components/GameIcon";
+import { TylerLost } from "@/components/TylerLost";
 import { CONFIG, GAME_LABELS } from "@/lib/config";
 import { tylerWinLine, winLine } from "@/lib/flavor";
 import { rankTitle } from "@/lib/scoring";
@@ -97,7 +98,7 @@ export default function ReportPage() {
       )}
 
       <h1>What did you win?</h1>
-      <p className="sub">Tap the game. That&apos;s it. Kahoot: tap once per placement point (1st = 3 taps).</p>
+      <p className="sub">Tap the game. That&apos;s it.</p>
       <div className="games">
         {CONFIG.games.map((g) => (
           <button key={g} className="game" disabled={busy || ended} onClick={(e) => report(g, e)}>
@@ -106,6 +107,7 @@ export default function ReportPage() {
           </button>
         ))}
       </div>
+      <TylerLost />
       {layer}
     </>
   );

@@ -1,25 +1,16 @@
 "use client";
 
-import { useState } from "react";
-import { buzz } from "@/components/Burst";
-import { GameIcon } from "@/components/GameIcon";
 import { SidePrizes } from "@/components/SidePrizes";
 import { SoundToggle } from "@/components/SoundToggle";
 import { Standings } from "@/components/Standings";
-import { useToast } from "@/components/Toast";
-import { CONFIG, GAME_LABELS } from "@/lib/config";
 import { hotPlayerIds } from "@/lib/scoring";
 import { useNow } from "@/lib/useNow";
-import { friendlyError, supabase } from "@/lib/supabase";
 import { useParty } from "@/lib/party";
 import { usePlayerId } from "@/lib/usePlayerId";
 
 export default function BoardPage() {
-  const { raw, derived, error, refresh } = useParty();
+  const { raw, derived, error } = useParty();
   const myId = usePlayerId();
-  const toast = useToast();
-  const [sheet, setSheet] = useState(false);
-  const [busy, setBusy] = useState(false);
   const now = useNow();
 
   if (!raw || !derived) {
@@ -32,34 +23,6 @@ export default function BoardPage() {
   const tyler = derived.tyler;
   const curse = derived.curse;
   const winner = derived.grandWinner ? players.find((p) => p.id === derived.grandWinner!.playerId) : null;
-
-  async function tylerLost(game: string) {
-    buzz([60, 40, 140]);
-    setBusy(true);
-    const { data: eventId, error: err } = await supabase.rpc("tyler_lost", { p_game: game });
-    setBusy(false);
-    setSheet(false);
-    if (err) {
-      toast(friendlyError(err), { variant: "error" });
-    } else {
-      // The splash carries the flavor; this toast is just the Undo handle.
-      toast("Tyler −1 logged", {
-        variant: "curse",
-        ms: 10_000,
-        action: {
-          label: "Undo",
-          onClick: async () => {
-            const { data: ok } = await supabase.rpc("undo_event", { p_event_id: eventId });
-            toast(ok ? "Undone — Tyler is spared." : "Too late to undo — ask the host.", {
-              variant: ok ? "win" : "error",
-            });
-            void refresh().catch(() => {});
-          },
-        },
-      });
-    }
-    void refresh().catch(() => {});
-  }
 
   return (
     <>
@@ -100,11 +63,8 @@ export default function BoardPage() {
               </div>
               <p className="muted" style={{ margin: "8px 0 0" }}>
                 Every loss costs him 1. The ring returns at {threshold} points or {settings.tyler_streak_length} wins
-                in a row.
+                in a row. Log his losses from the Report a win tab.
               </p>
-              <button className="btn btn-ember big" disabled={ended || busy} onClick={() => setSheet(true)}>
-                TYLER LOST
-              </button>
             </>
           ) : (
             <>
@@ -134,24 +94,6 @@ export default function BoardPage() {
         </>
       )}
 
-      {sheet && (
-        <div className="sheet-backdrop" onClick={() => !busy && setSheet(false)}>
-          <div className="sheet" onClick={(e) => e.stopPropagation()}>
-            <h2 style={{ marginTop: 0 }}>Which game did Tyler lose?</h2>
-            <div className="games">
-              {CONFIG.games.map((g) => (
-                <button key={g} className="game" disabled={busy} onClick={() => tylerLost(g)}>
-                  <GameIcon game={g} size={30} />
-                  {GAME_LABELS[g] ?? g}
-                </button>
-              ))}
-            </div>
-            <button className="btn" style={{ width: "100%", marginTop: 12 }} onClick={() => setSheet(false)}>
-              Cancel
-            </button>
-          </div>
-        </div>
-      )}
     </>
   );
 }

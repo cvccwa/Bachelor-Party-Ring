@@ -486,3 +486,5 @@ body::after {
   .tv .tv-side { gap: 12px; }
   .tv .tv-side .panel, .tv .tv-side .curse { padding: 12px 14px; }
 }
+
+.tyler-lost { margin-top: 20px; }
