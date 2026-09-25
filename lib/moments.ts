@@ -4,12 +4,16 @@
 // same derive() the leaderboard uses. Comparing settings too catches crowns
 // that come from the host (ending the competition, lowering the threshold).
 
-import { derive, type Player, type PointEvent, type Settings } from "./scoring";
+import { derive, rankTitle, type Player, type PointEvent, type Settings } from "./scoring";
 
 export type Moment =
   | { kind: "crowned"; playerName: string; fallback: boolean }
   | { kind: "ringBack"; reason: "threshold" | "streak" }
-  | { kind: "tylerLost"; game: string };
+  | { kind: "tylerLost"; game: string }
+  | { kind: "rankUp"; title: string };
+
+// Rank titles in ascending order, for detecting a personal level-up.
+const TITLE_ORDER = ["Lost in the Marshes", "Hobbit", "Ranger", "Elf-lord", "Crowned"];
 
 export type Recap = {
   wins: number;
@@ -23,6 +27,7 @@ export function detectMoments(
   events: PointEvent[],
   settings: Settings,
   seen: { seq: number; settings: Settings },
+  myId?: string | null,
 ): { moments: Moment[]; recap: Recap; newCount: number } {
   const fresh = events.filter((e) => e.seq > seen.seq).sort((a, b) => a.seq - b.seq);
   const before = derive(players, events.filter((e) => e.seq <= seen.seq), seen.settings);
@@ -39,6 +44,13 @@ export function detectMoments(
   if (!before.grandWinner && after.grandWinner) {
     const name = players.find((p) => p.id === after.grandWinner!.playerId)?.name ?? "Someone";
     moments.push({ kind: "crowned", playerName: name, fallback: after.grandWinner.reason === "fallback" });
+  }
+
+  // Personal level-up for this phone's player (skipped if they were just crowned).
+  if (myId && !moments.some((m) => m.kind === "crowned" && after.grandWinner?.playerId === myId)) {
+    const was = rankTitle(before.totals.get(myId) ?? 0, seen.settings.win_threshold);
+    const now = rankTitle(after.totals.get(myId) ?? 0, settings.win_threshold);
+    if (TITLE_ORDER.indexOf(now) > TITLE_ORDER.indexOf(was)) moments.push({ kind: "rankUp", title: now });
   }
 
   const top = after.standings[0];

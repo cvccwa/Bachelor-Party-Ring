@@ -6,6 +6,8 @@ import { crownLine, ringBackLine, tylerLostLine } from "@/lib/flavor";
 import { detectMoments, type Moment, type Recap } from "@/lib/moments";
 import { useParty, type Raw } from "@/lib/party";
 import { setSplashActive } from "@/lib/splashState";
+import { play } from "@/lib/sound";
+import { usePlayerId } from "@/lib/usePlayerId";
 import type { Settings } from "@/lib/scoring";
 
 // Full-screen splashes for the big moments (Tyler loses, ring returns,
@@ -14,7 +16,7 @@ import type { Settings } from "@/lib/scoring";
 
 type Seen = { seq: number; settings: Settings };
 type Splash =
-  | { id: number; type: "moment"; variant: "curse" | "ring" | "crown"; icon: string; title: string; line: string }
+  | { id: number; type: "moment"; variant: "curse" | "ring" | "crown" | "rank"; icon: string; title: string; line: string }
   | { id: number; type: "recap"; recap: Recap };
 
 const SEEN_KEY = "bpr.seen";
@@ -44,6 +46,15 @@ function toSplash(m: Moment, id: number): Splash {
       return { id, type: "moment", variant: "curse", icon: "🔥", title: `Tyler lost ${m.game}`, line: tylerLostLine() };
     case "ringBack":
       return { id, type: "moment", variant: "ring", icon: "💍", title: "The ring returns!", line: ringBackLine(m.reason) };
+    case "rankUp":
+      return {
+        id,
+        type: "moment",
+        variant: "rank",
+        icon: RANK_ICONS[m.title] ?? "⭐",
+        title: `You've risen to ${m.title}!`,
+        line: RANK_LINES[m.title] ?? "Your legend grows.",
+      };
     case "crowned":
       return {
         id,
@@ -56,12 +67,22 @@ function toSplash(m: Moment, id: number): Splash {
   }
 }
 
+const RANK_ICONS: Record<string, string> = { Hobbit: "🍃", Ranger: "🏹", "Elf-lord": "🌟", Crowned: "👑" };
+const RANK_LINES: Record<string, string> = {
+  Hobbit: "Back on solid ground. Second breakfast awaits.",
+  Ranger: "Rugged, mysterious, suspiciously good at this.",
+  "Elf-lord": "Graceful. Ageless. Insufferable about it.",
+  Crowned: "You've reached the mark. Songs will be sung.",
+};
+
 function momentLine(m: Moment): string {
   switch (m.kind) {
     case "crowned":
       return `👑 ${m.playerName} was crowned grand winner`;
     case "ringBack":
       return "💍 Tyler's curse broke — the ring returned";
+    case "rankUp":
+      return `${RANK_ICONS[m.title] ?? "⭐"} You rose to ${m.title}`;
     case "tylerLost":
       return "";
   }
@@ -75,6 +96,11 @@ export function Moments() {
   const away = useRef(true); // first snapshot after opening counts as "coming back"
   const nextId = useRef(1);
   const quiet = useRef(false);
+  const myId = usePlayerId();
+  const me = useRef<string | null>(null);
+  useEffect(() => {
+    me.current = myId ?? null;
+  }, [myId]);
   useEffect(() => {
     quiet.current = path.startsWith("/host");
   }, [path]);
@@ -92,7 +118,7 @@ export function Moments() {
     away.current = false;
     if (!prev || quiet.current) return; // first ever visit, or host panel
 
-    const { moments, recap, newCount } = detectMoments(raw.players, raw.events, raw.settings, prev);
+    const { moments, recap, newCount } = detectMoments(raw.players, raw.events, raw.settings, prev, me.current);
     if (wasAway) {
       if (newCount > 0 || moments.length > 0) setQueue((q) => [...q, { id: nextId.current++, type: "recap", recap }]);
     } else if (moments.length > 0) {
@@ -117,6 +143,7 @@ export function Moments() {
 
   useEffect(() => {
     setSplashActive(!!current);
+    if (current?.type === "moment") play(current.variant === "rank" ? "ring" : current.variant);
   }, [current]);
   useEffect(() => () => setSplashActive(false), []);
 

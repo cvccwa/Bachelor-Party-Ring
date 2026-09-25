@@ -1,7 +1,7 @@
 "use client";
 
-import QRCode from "qrcode";
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { JoinQR } from "@/components/JoinQR";
 import { useToast } from "@/components/Toast";
 import { CONFIG } from "@/lib/config";
 import { friendlyError, supabase } from "@/lib/supabase";
@@ -46,17 +46,6 @@ function PinGate({ onUnlock }: { onUnlock: (pin: string) => void }) {
 function Panel({ pin, onLock }: { pin: string; onLock: () => void }) {
   const { raw, derived, refresh } = useParty();
   const toast = useToast();
-  const [qr, setQr] = useState<string>("");
-  const [origin, setOrigin] = useState("");
-
-  useEffect(() => {
-    const url = window.location.origin;
-    QRCode.toString(url, { type: "svg", margin: 1 }).then((svg) => {
-      setOrigin(url);
-      setQr(svg);
-    });
-  }, []);
-
   if (!raw || !derived) return <p className="muted">Loading…</p>;
 
   const byId = new Map(raw.players.map((p) => [p.id, p]));
@@ -190,10 +179,19 @@ function Panel({ pin, onLock }: { pin: string; onLock: () => void }) {
         {recent.length === 0 && <li className="muted">No events yet.</li>}
       </ul>
 
+      <h2>Big screens</h2>
+      <div className="panel row">
+        <a className="btn btn-gold" href="/tv" target="_blank" rel="noreferrer">
+          📺 Open TV mode
+        </a>
+        <a className="btn" href="/awards" target="_blank" rel="noreferrer">
+          🏆 Open Hall of Legends
+        </a>
+      </div>
+
       <h2>Table-tent QR</h2>
-      <div className="panel qr">
-        {qr && <div dangerouslySetInnerHTML={{ __html: qr }} />}
-        <p className="muted">{origin}</p>
+      <div className="panel">
+        <JoinQR />
       </div>
     </>
   );
