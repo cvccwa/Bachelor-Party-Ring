@@ -184,9 +184,7 @@ function Panel({ pin, onLock }: { pin: string; onLock: () => void }) {
         <a className="btn btn-gold" href="/tv" target="_blank" rel="noreferrer">
           📺 Open TV mode
         </a>
-        <a className="btn" href="/awards" target="_blank" rel="noreferrer">
-          🏆 Open Hall of Legends
-        </a>
+        <span className="muted">The TV switches to the Hall of Legends when you end the competition.</span>
       </div>
 
       <h2>Table-tent QR</h2>

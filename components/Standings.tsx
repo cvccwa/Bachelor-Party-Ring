@@ -15,33 +15,38 @@ type Props = {
   myId?: string | null;
   hotIds?: Set<string>;
   compact?: boolean;
+  /** Split into two columns (ranks run down the first, then the second) on wide screens. */
+  twoColumns?: boolean;
 };
 
 const reduceMotion = () =>
   typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
 
-export function Standings({ standings, threshold, curse, winnerId, myId, hotIds, compact }: Props) {
+export function Standings({ standings, threshold, curse, winnerId, myId, hotIds, compact, twoColumns }: Props) {
   const rows = useRef(new Map<string, HTMLLIElement>());
-  const lastTop = useRef(new Map<string, number>());
+  const lastPos = useRef(new Map<string, { x: number; y: number }>());
 
   const order = standings.map((s) => s.player.id).join(",");
   useLayoutEffect(() => {
     const motion = !reduceMotion();
     rows.current.forEach((el, id) => {
-      const top = el.getBoundingClientRect().top;
-      const prev = lastTop.current.get(id);
-      if (motion && prev !== undefined && Math.abs(prev - top) > 1) {
-        el.animate([{ transform: `translateY(${prev - top}px)` }, { transform: "none" }], {
+      const r = el.getBoundingClientRect();
+      const prev = lastPos.current.get(id);
+      if (motion && prev && (Math.abs(prev.y - r.top) > 1 || Math.abs(prev.x - r.left) > 1)) {
+        el.animate([{ transform: `translate(${prev.x - r.left}px, ${prev.y - r.top}px)` }, { transform: "none" }], {
           duration: 650,
           easing: "cubic-bezier(.2,.8,.2,1)",
         });
       }
-      lastTop.current.set(id, top);
+      lastPos.current.set(id, { x: r.left, y: r.top });
     });
   }, [order]);
 
   return (
-    <ol className={`board ${compact ? "board-compact" : ""}`}>
+    <ol
+      className={`board ${compact ? "board-compact" : ""} ${twoColumns ? "board-cols-2" : ""}`}
+      style={{ "--rows": Math.ceil(standings.length / 2) } as React.CSSProperties}
+    >
       {standings.map((s) => {
         const isTyler = s.player.is_tyler;
         const cursed = isTyler && curse.status === "cursed";

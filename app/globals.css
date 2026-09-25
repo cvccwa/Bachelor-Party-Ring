@@ -448,3 +448,41 @@ body::after {
   .board-compact .pts { font-size: 2.1rem; }
 }
 .runes { background-image: linear-gradient(90deg, #b8923a 0%, #fff0b8 50%, #b8923a 100%); font-size: .95rem; text-shadow: none; }
+
+/* ---- Road to Mount Doom (TV) */
+.tv-road {
+  --road-ink: #c9a24a;
+  margin-top: 6px; border: 1px solid var(--gold-deep); border-radius: 16px;
+  background: linear-gradient(180deg, #1f1a10, var(--panel)); padding: 4px 8px 0;
+}
+.road { display: block; width: 100%; height: auto; max-height: 30vh; }
+.road text { font-family: var(--font-body), system-ui, sans-serif; }
+.road .road-land { font-family: var(--font-display), Georgia, serif; font-weight: 800; letter-spacing: .06em; }
+.road-landmark text { fill: #c9b891; font-weight: 600; }
+.road-marker { transition: transform .9s cubic-bezier(.2,.8,.2,1); }
+.road-marker.cursed { animation: smoulder 2.2s ease-in-out infinite; }
+.road-doom-glow { transition: opacity .6s; }
+.road-doom-glow.hot { opacity: .85; animation: doom-pulse 1.8s ease-in-out infinite; }
+@keyframes smoulder { 50% { filter: drop-shadow(0 0 7px #ff6a2b); } }
+@keyframes doom-pulse { 50% { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) {
+  .road-marker { transition: none; }
+  .road-marker.cursed, .road-doom-glow.hot { animation: none; }
+}
+/* Road takes vertical space on the TV: tighten rows so everyone still fits. */
+@media (min-width: 1000px) {
+  .tv .board-compact li { padding: 3px 18px; }
+  .tv .board-compact .who b { font-size: 1.3rem; }
+  .tv .board-compact .pts { font-size: 1.8rem; }
+  .tv .board-compact .chip { font-size: .7rem; }
+}
+@media (min-width: 1000px) {
+  .board-cols-2 { grid-auto-flow: column; grid-template-rows: repeat(var(--rows), auto); grid-template-columns: 1fr 1fr; column-gap: 10px; }
+}
+.tv-grid { align-items: start; }
+.board-cols-2 { align-content: start; }
+@media (min-width: 1000px) {
+  .tv .tv-join .qr svg { width: 130px; height: 130px; }
+  .tv .tv-side { gap: 12px; }
+  .tv .tv-side .panel, .tv .tv-side .curse { padding: 12px 14px; }
+}
