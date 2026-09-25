@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useToast } from "@/components/Toast";
-import { CONFIG, GAME_ICONS, GAME_LABELS } from "@/lib/config";
+import { CONFIG, GAME_ICONS, GAME_LABELS, SIDE_PRIZE_TITLES } from "@/lib/config";
 import { tylerLostLine } from "@/lib/flavor";
 import { rankTitle } from "@/lib/scoring";
 import { friendlyError, supabase } from "@/lib/supabase";
@@ -147,10 +147,11 @@ export default function BoardPage() {
               .map((g) => derived.sidePrizes.find((p) => p.game === g))
               .filter((p) => !!p)
               .map((p) => (
-                <div key={p.game} className="panel">
-                  <b>
+                <div key={p.game} className="panel prize">
+                  <span className="prize-game muted">
                     {GAME_ICONS[p.game] ?? "🏆"} {GAME_LABELS[p.game] ?? p.game}
-                  </b>
+                  </span>
+                  <b className="prize-title">{SIDE_PRIZE_TITLES[p.game] ?? `${p.game} champion`}</b>
                   <span>{p.leaders.map((l) => l.name).join(", ")}</span>{" "}
                   <span className="muted">
                     · {p.wins} win{p.wins === 1 ? "" : "s"}

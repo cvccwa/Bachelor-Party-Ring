@@ -196,3 +196,5 @@ h2 { font-size: 1.15rem; margin: 28px 0 10px; color: var(--gold); }
 }
 .check { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 12px; }
 .check input { margin-top: 4px; width: 18px; height: 18px; accent-color: var(--gold); }
+.prize-game { display: block; font-size: .85rem; margin-bottom: 2px; }
+.prize-title { font-family: var(--font-display), Georgia, serif; color: var(--gold); }

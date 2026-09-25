@@ -28,3 +28,13 @@ export const GAME_ICONS: Record<string, string> = {
   "Super Smash Bros": "🎮",
   Kahoot: "❓",
 };
+
+// Side-prize titles for the per-game leader on the leaderboard.
+export const SIDE_PRIZE_TITLES: Record<string, string> = {
+  Cornhole: "Lord of the Bags",
+  "Beer Pong": "Keeper of the Flowing Cup",
+  "Axe Throwing": "Axe-lord of the Hills",
+  "Just Dance": "Twinkle-Toes of Rivendell",
+  "Super Smash Bros": "Warlord of the Four Realms",
+  Kahoot: "Wizard of Useless Knowledge",
+};
