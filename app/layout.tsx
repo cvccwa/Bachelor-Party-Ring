@@ -1,8 +1,10 @@
 import type { Metadata, Viewport } from "next";
 import { Cinzel, Inter } from "next/font/google";
+import { Moments } from "@/components/Moments";
 import { Nav } from "@/components/Nav";
 import { SwRegister } from "@/components/SwRegister";
 import { ToastProvider } from "@/components/Toast";
+import { PartyProvider } from "@/lib/party";
 import "./globals.css";
 
 const display = Cinzel({ variable: "--font-display", subsets: ["latin"], weight: ["600", "800"] });
@@ -25,10 +27,13 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" className={`${display.variable} ${body.variable}`}>
       <body>
-        <ToastProvider>
-          <main className="shell">{children}</main>
-          <Nav />
-        </ToastProvider>
+        <PartyProvider>
+          <ToastProvider>
+            <main className="shell">{children}</main>
+            <Nav />
+            <Moments />
+          </ToastProvider>
+        </PartyProvider>
         <SwRegister />
       </body>
     </html>

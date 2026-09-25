@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { useToast } from "@/components/Toast";
 import { CONFIG } from "@/lib/config";
 import { friendlyError, supabase } from "@/lib/supabase";
-import { useParty } from "@/lib/useParty";
+import { useParty } from "@/lib/party";
 
 // Hidden host panel. Guarded by a shared PIN checked inside Postgres
 // (private.admin); the PIN lives only in this tab's memory.

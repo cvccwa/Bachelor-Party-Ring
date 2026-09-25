@@ -30,4 +30,10 @@ export const ringBackLine = (reason: "threshold" | "streak") =>
     ? "THE CURSE IS BROKEN! Tyler strung the wins together — the ring returns!"
     : "THE CURSE IS BROKEN! Tyler hit the mark — the ring returns!";
 
-export const grandWinnerLine = (name: string) => `👑 ${name} is crowned grand winner of the party!`;
+export const crownLine = () =>
+  pick([
+    "Grand winner of the party. All shall kneel.",
+    "The realm has a new ruler. Bow accordingly.",
+    "Songs will be sung. Mostly off-key.",
+    "First to the mark — glory eternal (until next year).",
+  ]);
