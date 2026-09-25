@@ -5,6 +5,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { crownLine, ringBackLine, tylerLostLine } from "@/lib/flavor";
 import { detectMoments, type Moment, type Recap } from "@/lib/moments";
 import { useParty, type Raw } from "@/lib/party";
+import { setSplashActive } from "@/lib/splashState";
 import type { Settings } from "@/lib/scoring";
 
 // Full-screen splashes for the big moments (Tyler loses, ring returns,
@@ -113,6 +114,11 @@ export function Moments() {
 
   const current = queue[0];
   const dismiss = useCallback(() => setQueue((q) => q.slice(1)), []);
+
+  useEffect(() => {
+    setSplashActive(!!current);
+  }, [current]);
+  useEffect(() => () => setSplashActive(false), []);
 
   useEffect(() => {
     if (!current) return;
