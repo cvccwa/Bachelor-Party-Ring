@@ -3,10 +3,10 @@
 import { useState } from "react";
 import { useToast } from "@/components/Toast";
 import { CONFIG, GAME_ICONS, GAME_LABELS } from "@/lib/config";
-import { grandWinnerLine, ringBackLine, tylerWinLine, winLine } from "@/lib/flavor";
-import { derive, rankTitle } from "@/lib/scoring";
+import { tylerWinLine, winLine } from "@/lib/flavor";
+import { rankTitle } from "@/lib/scoring";
 import { friendlyError, supabase } from "@/lib/supabase";
-import { useParty } from "@/lib/useParty";
+import { useParty } from "@/lib/party";
 import { setPlayerId, usePlayerId } from "@/lib/usePlayerId";
 
 export default function ReportPage() {
@@ -60,23 +60,11 @@ export default function ReportPage() {
       },
     };
 
-    let after = null;
-    try {
-      const r = await refresh();
-      after = derive(r.players, r.events, r.settings);
-    } catch {
-      /* toast anyway */
-    }
-
-    if (after?.grandWinner && !before?.grandWinner && after.grandWinner.playerId === me.id) {
-      toast(grandWinnerLine(me.name), { variant: "epic", action: undo });
-    } else if (me.is_tyler && after?.curse.status === "lifted" && before?.curse.status === "cursed") {
-      toast(ringBackLine(after.curse.reason), { variant: "epic", action: undo });
-    } else {
-      toast(me.is_tyler && before?.curse.status === "cursed" ? tylerWinLine() : winLine(me.name, game), {
-        action: undo,
-      });
-    }
+    // Crowned / ring-returned splashes are shown to everyone by <Moments />.
+    toast(me.is_tyler && before?.curse.status === "cursed" ? tylerWinLine() : winLine(me.name, game), {
+      action: undo,
+    });
+    void refresh().catch(() => {});
   }
 
   return (

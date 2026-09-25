@@ -6,7 +6,7 @@ import { CONFIG, GAME_ICONS, GAME_LABELS, SIDE_PRIZE_TITLES } from "@/lib/config
 import { tylerLostLine } from "@/lib/flavor";
 import { rankTitle } from "@/lib/scoring";
 import { friendlyError, supabase } from "@/lib/supabase";
-import { useParty } from "@/lib/useParty";
+import { useParty } from "@/lib/party";
 import { usePlayerId } from "@/lib/usePlayerId";
 
 export default function BoardPage() {

@@ -1,11 +1,11 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { CONFIG } from "./config";
-import { derive, type Player, type PointEvent, type Settings } from "./scoring";
+import { derive, type Derived, type Player, type PointEvent, type Settings } from "./scoring";
 import { supabase } from "./supabase";
 
-type Raw = { players: Player[]; events: PointEvent[]; settings: Settings };
+export type Raw = { players: Player[]; events: PointEvent[]; settings: Settings };
 
 const DEFAULT_SETTINGS: Settings = {
   win_threshold: CONFIG.winThreshold,
@@ -29,13 +29,34 @@ async function fetchAll(): Promise<Raw> {
   };
 }
 
-// Live party state: initial fetch, Supabase Realtime for instant updates,
+type Listener = (raw: Raw) => void;
+
+type PartyState = {
+  raw: Raw | null;
+  derived: Derived | null;
+  error: string | null;
+  refresh: () => Promise<Raw>;
+  // Called with every fresh snapshot (used by the big-moment splashes).
+  subscribe: (fn: Listener) => () => void;
+};
+
+const PartyCtx = createContext<PartyState | null>(null);
+
+// One live connection for the whole app, shared by every screen and the
+// big-moment splashes: initial fetch, Supabase Realtime for instant updates,
 // plus a slow poll as a safety net if the socket drops (e.g. phone sleeps).
-export function useParty() {
+export function PartyProvider({ children }: { children: ReactNode }) {
   const [raw, setRaw] = useState<Raw | null>(null);
   const [error, setError] = useState<string | null>(null);
   // Every refresh fetches; a sequence number drops out-of-order responses.
   const latest = useRef(0);
+  const listeners = useRef(new Set<Listener>());
+  const subscribe = useCallback((fn: Listener) => {
+    listeners.current.add(fn);
+    return () => {
+      listeners.current.delete(fn);
+    };
+  }, []);
 
   const refresh = useCallback(async (): Promise<Raw> => {
     const id = ++latest.current;
@@ -44,6 +65,7 @@ export function useParty() {
       if (id === latest.current) {
         setRaw(r);
         setError(null);
+        listeners.current.forEach((fn) => fn(r));
       }
       return r;
     } catch (e) {
@@ -78,5 +100,15 @@ export function useParty() {
     [raw],
   );
 
-  return { raw, derived, error, refresh };
+  const value = useMemo(
+    () => ({ raw, derived, error, refresh, subscribe }),
+    [raw, derived, error, refresh, subscribe],
+  );
+  return <PartyCtx.Provider value={value}>{children}</PartyCtx.Provider>;
+}
+
+export function useParty(): PartyState {
+  const ctx = useContext(PartyCtx);
+  if (!ctx) throw new Error("useParty must be used inside <PartyProvider>");
+  return ctx;
 }
