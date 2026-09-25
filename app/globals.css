@@ -284,3 +284,4 @@ h2 { font-size: 1.15rem; margin: 28px 0 10px; color: var(--gold); }
   .splash, .splash *, .splash-rays { animation: none !important; }
   .splash-particles { display: none; }
 }
+.toasts[hidden] { display: none; }

@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { useToast } from "@/components/Toast";
 import { CONFIG, GAME_ICONS, GAME_LABELS, SIDE_PRIZE_TITLES } from "@/lib/config";
-import { tylerLostLine } from "@/lib/flavor";
 import { rankTitle } from "@/lib/scoring";
 import { friendlyError, supabase } from "@/lib/supabase";
 import { useParty } from "@/lib/party";
@@ -35,8 +34,10 @@ export default function BoardPage() {
     if (err) {
       toast(friendlyError(err), { variant: "error" });
     } else {
-      toast(tylerLostLine(), {
+      // The splash carries the flavor; this toast is just the Undo handle.
+      toast("Tyler −1 logged", {
         variant: "curse",
+        ms: 10_000,
         action: {
           label: "Undo",
           onClick: async () => {
