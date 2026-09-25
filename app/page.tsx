@@ -2,11 +2,14 @@
 
 import { useState } from "react";
 import { useToast } from "@/components/Toast";
-import { CONFIG, GAME_ICONS, GAME_LABELS } from "@/lib/config";
+import { buzz, useBurst } from "@/components/Burst";
+import { GameIcon } from "@/components/GameIcon";
+import { CONFIG, GAME_LABELS } from "@/lib/config";
 import { tylerWinLine, winLine } from "@/lib/flavor";
 import { rankTitle } from "@/lib/scoring";
 import { friendlyError, supabase } from "@/lib/supabase";
 import { useParty } from "@/lib/party";
+import { play } from "@/lib/sound";
 import { setPlayerId, usePlayerId } from "@/lib/usePlayerId";
 
 export default function ReportPage() {
@@ -14,6 +17,7 @@ export default function ReportPage() {
   const playerId = usePlayerId();
   const toast = useToast();
   const [busy, setBusy] = useState(false);
+  const { fire, layer } = useBurst();
 
   if (!raw || !derived || playerId === undefined) {
     return <p className="muted">{error ? `Can't reach the scoreboard: ${error}` : "Summoning the scoreboard…"}</p>;
@@ -41,8 +45,11 @@ export default function ReportPage() {
   const total = derived.totals.get(me.id) ?? 0;
   const threshold = raw.settings.win_threshold;
 
-  async function report(game: string) {
+  async function report(game: string, e: React.MouseEvent) {
     if (!me || busy) return;
+    fire(e.clientX, e.clientY);
+    buzz(30);
+    play("tap");
     setBusy(true);
     const before = derived;
     const { data: eventId, error: err } = await supabase.rpc("report_win", { p_player_id: me.id, p_game: game });
@@ -93,14 +100,13 @@ export default function ReportPage() {
       <p className="sub">Tap the game. That&apos;s it. Kahoot: tap once per placement point (1st = 3 taps).</p>
       <div className="games">
         {CONFIG.games.map((g) => (
-          <button key={g} className="game" disabled={busy || ended} onClick={() => report(g)}>
-            <span className="icon" aria-hidden>
-              {GAME_ICONS[g] ?? "🏆"}
-            </span>
+          <button key={g} className="game" disabled={busy || ended} onClick={(e) => report(g, e)}>
+            <GameIcon game={g} size={44} className="icon" />
             {GAME_LABELS[g] ?? g}
           </button>
         ))}
       </div>
+      {layer}
     </>
   );
 }

@@ -1,9 +1,15 @@
 "use client";
 
 import { useState } from "react";
+import { buzz } from "@/components/Burst";
+import { GameIcon } from "@/components/GameIcon";
+import { SidePrizes } from "@/components/SidePrizes";
+import { SoundToggle } from "@/components/SoundToggle";
+import { Standings } from "@/components/Standings";
 import { useToast } from "@/components/Toast";
-import { CONFIG, GAME_ICONS, GAME_LABELS, SIDE_PRIZE_TITLES } from "@/lib/config";
-import { rankTitle } from "@/lib/scoring";
+import { CONFIG, GAME_LABELS } from "@/lib/config";
+import { hotPlayerIds } from "@/lib/scoring";
+import { useNow } from "@/lib/useNow";
 import { friendlyError, supabase } from "@/lib/supabase";
 import { useParty } from "@/lib/party";
 import { usePlayerId } from "@/lib/usePlayerId";
@@ -14,6 +20,7 @@ export default function BoardPage() {
   const toast = useToast();
   const [sheet, setSheet] = useState(false);
   const [busy, setBusy] = useState(false);
+  const now = useNow();
 
   if (!raw || !derived) {
     return <p className="muted">{error ? `Can't reach the scoreboard: ${error}` : "Summoning the scoreboard…"}</p>;
@@ -27,6 +34,7 @@ export default function BoardPage() {
   const winner = derived.grandWinner ? players.find((p) => p.id === derived.grandWinner!.playerId) : null;
 
   async function tylerLost(game: string) {
+    buzz([60, 40, 140]);
     setBusy(true);
     const { data: eventId, error: err } = await supabase.rpc("tyler_lost", { p_game: game });
     setBusy(false);
@@ -55,7 +63,14 @@ export default function BoardPage() {
 
   return (
     <>
-      <h1>The Fellowship Standings</h1>
+      <div className="row">
+        <h1>The Fellowship Standings</h1>
+        <span className="spacer" />
+        <SoundToggle />
+      </div>
+      <div className="runes" aria-hidden>
+        ᚠ ᚢ ᚦ ᚨ ᚱ ᚲ ᚷ ᚹ ᚺ ᚾ ᛁ ᛃ ᛇ ᛈ ᛉ ᛊ ᛏ ᛒ ᛖ ᛗ ᛚ ᛜ ᛞ ᛟ
+      </div>
       <p className="sub">
         First to {threshold} is crowned.{ended && " The competition has ended."}
       </p>
@@ -103,63 +118,19 @@ export default function BoardPage() {
         </section>
       )}
 
-      <ol className="board">
-        {derived.standings.map((s) => {
-          const isCursed = s.player.is_tyler && curse.status === "cursed";
-          const pct = Math.max(0, Math.min(100, (s.total / threshold) * 100));
-          return (
-            <li
-              key={s.player.id}
-              className={[
-                s.rank === 1 && s.total > 0 ? "top" : "",
-                isCursed ? "cursed" : "",
-                s.player.id === myId ? "me-row" : "",
-              ].join(" ")}
-            >
-              <span className="rank">{s.rank}</span>
-              <span className="who">
-                <b>
-                  {winner?.id === s.player.id && "👑 "}
-                  {s.player.name}
-                  {isCursed && " 🔥"}
-                </b>
-                <span className="row" style={{ gap: 6 }}>
-                  <span className={`chip ${s.total >= threshold ? "chip-gold" : ""}`}>
-                    {rankTitle(s.total, threshold)}
-                  </span>
-                  {s.player.is_tyler && curse.status === "lifted" && <span className="chip chip-elf">Ring back</span>}
-                  {s.losses > 0 && <span className="chip chip-ember">−{s.losses}</span>}
-                </span>
-                <span className="progress">
-                  <span style={{ width: `${pct}%` }} />
-                </span>
-              </span>
-              <span className={`pts ${s.total < 0 ? "neg" : ""}`}>{s.total}</span>
-            </li>
-          );
-        })}
-      </ol>
+      <Standings
+        standings={derived.standings}
+        threshold={threshold}
+        curse={curse}
+        winnerId={winner?.id}
+        myId={myId}
+        hotIds={hotPlayerIds(raw.events, now)}
+      />
 
       {derived.sidePrizes.length > 0 && (
         <>
           <h2>Side prizes</h2>
-          <div className="prizes">
-            {CONFIG.games
-              .map((g) => derived.sidePrizes.find((p) => p.game === g))
-              .filter((p) => !!p)
-              .map((p) => (
-                <div key={p.game} className="panel prize">
-                  <span className="prize-game muted">
-                    {GAME_ICONS[p.game] ?? "🏆"} {GAME_LABELS[p.game] ?? p.game}
-                  </span>
-                  <b className="prize-title">{SIDE_PRIZE_TITLES[p.game] ?? `${p.game} champion`}</b>
-                  <span>{p.leaders.map((l) => l.name).join(", ")}</span>{" "}
-                  <span className="muted">
-                    · {p.wins} win{p.wins === 1 ? "" : "s"}
-                  </span>
-                </div>
-              ))}
-          </div>
+          <SidePrizes prizes={derived.sidePrizes} />
         </>
       )}
 
@@ -170,7 +141,7 @@ export default function BoardPage() {
             <div className="games">
               {CONFIG.games.map((g) => (
                 <button key={g} className="game" disabled={busy} onClick={() => tylerLost(g)}>
-                  <span aria-hidden>{GAME_ICONS[g] ?? "🏆"}</span>
+                  <GameIcon game={g} size={30} />
                   {GAME_LABELS[g] ?? g}
                 </button>
               ))}

@@ -160,3 +160,18 @@ export function rankTitle(total: number, threshold: number): string {
   if (f >= 3 / 7) return "Ranger";
   return "Hobbit";
 }
+
+// "On fire": 3+ wins in the last 15 minutes. (Regular players only log wins,
+// so a true consecutive streak isn't knowable for them — recency is.)
+export const HOT_WINS = 3;
+export const HOT_WINDOW_MS = 15 * 60_000;
+
+export function hotPlayerIds(events: PointEvent[], now: number): Set<string> {
+  const counts = new Map<string, number>();
+  for (const e of events) {
+    if (e.delta > 0 && now - Date.parse(e.created_at) <= HOT_WINDOW_MS) {
+      counts.set(e.player_id, (counts.get(e.player_id) ?? 0) + 1);
+    }
+  }
+  return new Set([...counts].filter(([, n]) => n >= HOT_WINS).map(([id]) => id));
+}
