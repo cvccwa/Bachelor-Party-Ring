@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { GameIcon } from "@/components/GameIcon";
+import { HallOfLegends } from "@/components/HallOfLegends";
 import { JoinQR } from "@/components/JoinQR";
 import { RoadToDoom } from "@/components/RoadToDoom";
 import { SidePrizes } from "@/components/SidePrizes";
@@ -14,6 +15,7 @@ import { useNow } from "@/lib/useNow";
 
 // Full-screen display for a TV: standings on the left; curse status, a
 // rotating card (side prizes ↔ join QR) and a live event feed on the right.
+// After the host ends the competition it shows the Hall of Legends instead.
 const ROTATE_MS = 12_000;
 
 export default function TvPage() {
@@ -33,6 +35,9 @@ export default function TvPage() {
       </div>
     );
   }
+
+  // Once the host ends the competition, the TV becomes the awards screen.
+  if (raw.settings.ended_at) return <HallOfLegends raw={raw} derived={derived} />;
 
   const { settings, players } = raw;
   const byId = new Map(players.map((p) => [p.id, p]));

@@ -4,24 +4,15 @@ import { SidePrizes } from "@/components/SidePrizes";
 import { SoundToggle } from "@/components/SoundToggle";
 import { GAME_LABELS } from "@/lib/config";
 import { podium, tylerTale } from "@/lib/awards";
-import { useParty } from "@/lib/party";
-import { rankTitle } from "@/lib/scoring";
+import type { Raw } from "@/lib/party";
+import { rankTitle, type Derived } from "@/lib/scoring";
 
-// Hall of Legends: the prize-time screen. Podium, side prizes, Tyler's tale.
+// Hall of Legends: what the TV shows once the host ends the competition.
+// Podium, side prizes, Tyler's tale.
 const STEP_ORDER = [1, 0, 2]; // 2nd, 1st, 3rd left-to-right
 const STEP_LABEL = ["1st", "2nd", "3rd"];
 
-export default function AwardsPage() {
-  const { raw, derived, error } = useParty();
-
-  if (!raw || !derived) {
-    return (
-      <div className="tv">
-        <p className="muted">{error ? `Can't reach the scoreboard: ${error}` : "Summoning the legends…"}</p>
-      </div>
-    );
-  }
-
+export function HallOfLegends({ raw, derived }: { raw: Raw; derived: Derived }) {
   const threshold = raw.settings.win_threshold;
   const steps = podium(derived.standings);
   const winner = derived.grandWinner ? raw.players.find((p) => p.id === derived.grandWinner!.playerId) : null;

@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 
 export function Nav() {
   const path = usePathname();
-  if (["/host", "/tv", "/awards"].some((p) => path.startsWith(p))) return null;
+  if (["/host", "/tv"].some((p) => path.startsWith(p))) return null;
   return (
     <nav className="nav">
       <Link href="/" className={path === "/" ? "active" : ""}>
