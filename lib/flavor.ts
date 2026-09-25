@@ -21,7 +21,7 @@ export const tylerLostLine = () =>
   pick([
     "Tyler −1. The curse deepens.",
     "Another loss. The ring grows heavier in Tyler's pocket.",
-    "Tyler −1. The ring hums smugly in the dark.",
+    "Tyler −1. Somewhere, something whispers \"precious.\"",
     "The shadow lengthens over Tyler. −1.",
   ]);
 
