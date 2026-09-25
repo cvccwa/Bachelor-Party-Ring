@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { GameIcon } from "@/components/GameIcon";
 import { JoinQR } from "@/components/JoinQR";
+import { RoadToDoom } from "@/components/RoadToDoom";
 import { SidePrizes } from "@/components/SidePrizes";
 import { SoundToggle } from "@/components/SoundToggle";
 import { Standings } from "@/components/Standings";
@@ -38,7 +39,7 @@ export default function TvPage() {
   const winner = derived.grandWinner ? byId.get(derived.grandWinner.playerId) : null;
   const curse = derived.curse;
   const showPrizes = derived.sidePrizes.length > 0 && slide % 2 === 1;
-  const feed = [...raw.events].sort((a, b) => b.seq - a.seq).slice(0, 7);
+  const feed = [...raw.events].sort((a, b) => b.seq - a.seq).slice(0, 5);
 
   return (
     <div className="tv">
@@ -61,6 +62,16 @@ export default function TvPage() {
         </div>
       )}
 
+      <div className="tv-road">
+        <RoadToDoom
+          players={players}
+          totals={derived.totals}
+          threshold={settings.win_threshold}
+          curse={curse}
+          winnerId={winner?.id}
+        />
+      </div>
+
       <div className="tv-grid">
         <Standings
           standings={derived.standings}
@@ -69,6 +80,7 @@ export default function TvPage() {
           winnerId={winner?.id}
           hotIds={hotPlayerIds(raw.events, now)}
           compact
+          twoColumns
         />
 
         <aside className="tv-side">
@@ -101,7 +113,7 @@ export default function TvPage() {
               </>
             ) : (
               <div className="tv-join">
-                <JoinQR />
+                <JoinQR showUrl={false} />
                 <div>
                   <h2 style={{ marginTop: 0 }}>Join the quest</h2>
                   <p className="muted">Scan, tap your name, and report every win.</p>
