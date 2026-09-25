@@ -486,3 +486,16 @@ body::after {
   .tv .tv-side { gap: 12px; }
   .tv .tv-side .panel, .tv .tv-side .curse { padding: 12px 14px; }
 }
+
+.tyler-lost { margin-top: 20px; }
+
+/* Report page: shorter game buttons so TYLER LOST fits on one phone screen.
+   Height tracks the viewport (3 rows share what's left after header + card). */
+.report-games .game {
+  aspect-ratio: auto;
+  height: clamp(68px, calc((100dvh - 400px) / 3), 120px);
+  gap: 4px; font-size: .98rem;
+}
+.tyler-lost { margin-top: 14px; padding: 12px 14px; }
+.tyler-lost p { font-size: .85rem; }
+.tyler-lost .big { margin-top: 8px; padding: 12px; font-size: 1.15rem; }
