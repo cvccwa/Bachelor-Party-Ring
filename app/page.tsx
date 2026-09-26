@@ -5,7 +5,7 @@ import { useToast } from "@/components/Toast";
 import { buzz, useBurst } from "@/components/Burst";
 import { GameIcon } from "@/components/GameIcon";
 import { TylerLost } from "@/components/TylerLost";
-import { CONFIG, GAME_LABELS } from "@/lib/config";
+import { CONFIG, GAME_LABELS, TYLER_REPEAT_EXEMPT } from "@/lib/config";
 import { tylerWinLine, winLine } from "@/lib/flavor";
 import { rankTitle } from "@/lib/scoring";
 import { friendlyError, supabase } from "@/lib/supabase";
@@ -45,6 +45,11 @@ export default function ReportPage() {
   const ended = !!raw.settings.ended_at;
   const total = derived.totals.get(me.id) ?? 0;
   const threshold = raw.settings.win_threshold;
+  // Tyler can't score the game he last played (win or loss); Kahoot is exempt.
+  const tylerLast = me.is_tyler
+    ? raw.events.filter((e) => e.player_id === me.id).sort((a, b) => b.seq - a.seq)[0]?.game
+    : undefined;
+  const repeatBlocked = (g: string) => g === tylerLast && !TYLER_REPEAT_EXEMPT.includes(g);
 
   async function report(game: string, e: React.MouseEvent) {
     if (!me || busy) return;
@@ -101,9 +106,15 @@ export default function ReportPage() {
       <p className="sub">Tap the game. That&apos;s it.</p>
       <div className="games report-games">
         {CONFIG.games.map((g) => (
-          <button key={g} className="game" disabled={busy || ended} onClick={(e) => report(g, e)}>
+          <button
+            key={g}
+            className={`game ${repeatBlocked(g) ? "blocked" : ""}`}
+            disabled={busy || ended || repeatBlocked(g)}
+            onClick={(e) => report(g, e)}
+          >
             <GameIcon game={g} size={34} className="icon" />
             {GAME_LABELS[g] ?? g}
+            {repeatBlocked(g) && <span className="game-note">Played last · no point</span>}
           </button>
         ))}
       </div>

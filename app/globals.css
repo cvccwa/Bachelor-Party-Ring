@@ -499,3 +499,5 @@ body::after {
 .tyler-lost { margin-top: 14px; padding: 12px 14px; }
 .tyler-lost p { font-size: .85rem; }
 .tyler-lost .big { margin-top: 8px; padding: 12px; font-size: 1.15rem; }
+.game.blocked { opacity: .55; border-style: dashed; }
+.game-note { font-size: .68rem; font-weight: 600; color: #ffb49a; letter-spacing: .02em; }
