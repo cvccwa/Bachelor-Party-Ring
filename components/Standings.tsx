@@ -1,6 +1,8 @@
 "use client";
 
 import { useLayoutEffect, useRef } from "react";
+import { GameIcon } from "@/components/GameIcon";
+import { SIDE_PRIZE_SHORT } from "@/lib/config";
 import { rankTitle, type CurseState, type Standing } from "@/lib/scoring";
 
 // Leaderboard rows with motion: rows glide to their new rank (FLIP), scores
@@ -14,6 +16,8 @@ type Props = {
   winnerId?: string | null;
   myId?: string | null;
   hotIds?: Set<string>;
+  /** player id → games whose side prize they hold (shown as gold badges). */
+  prizes?: Map<string, string[]>;
   compact?: boolean;
   /** Split into two columns (ranks run down the first, then the second) on wide screens. */
   twoColumns?: boolean;
@@ -22,7 +26,7 @@ type Props = {
 const reduceMotion = () =>
   typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
 
-export function Standings({ standings, threshold, curse, winnerId, myId, hotIds, compact, twoColumns }: Props) {
+export function Standings({ standings, threshold, curse, winnerId, myId, hotIds, prizes, compact, twoColumns }: Props) {
   const rows = useRef(new Map<string, HTMLLIElement>());
   const lastPos = useRef(new Map<string, { x: number; y: number }>());
 
@@ -77,6 +81,11 @@ export function Standings({ standings, threshold, curse, winnerId, myId, hotIds,
               </b>
               <span className="row" style={{ gap: 6 }}>
                 <span className={`chip ${s.total >= threshold ? "chip-gold" : ""}`}>{rankTitle(s.total, threshold)}</span>
+                {prizes?.get(s.player.id)?.map((g) => (
+                  <span key={g} className="chip chip-prize">
+                    <GameIcon game={g} size={12} className="inline-icon" /> {SIDE_PRIZE_SHORT[g] ?? g}
+                  </span>
+                ))}
                 {hot && <span className="chip chip-hot">🔥 On fire</span>}
                 {s.losses > 0 && <span className="chip chip-ember">−{s.losses}</span>}
               </span>

@@ -1,9 +1,9 @@
 // Minimal service worker: makes the app installable and keeps the shell
 // loadable on flaky backyard wifi. Scores always come live from Supabase.
-const CACHE = "ring-shell-v1";
+const CACHE = "ring-shell-v2";
 
 self.addEventListener("install", (event) => {
-  event.waitUntil(caches.open(CACHE).then((c) => c.addAll(["/", "/board"])).catch(() => {}));
+  event.waitUntil(caches.open(CACHE).then((c) => c.addAll(["/", "/board", "/prizes"])).catch(() => {}));
   self.skipWaiting();
 });
 

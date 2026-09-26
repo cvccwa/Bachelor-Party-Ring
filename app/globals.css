@@ -506,3 +506,28 @@ body::after {
 .toast.dragging { transition: none; cursor: grabbing; }
 .tyler-taunt { text-align: center; }
 .tyler-taunt b { font-size: 1.15rem; }
+
+/* ---- side prizes: row badges + Prizes tab */
+.chip-prize { color: #1a1406; background: linear-gradient(180deg, #f1cf72, var(--gold)); border-color: var(--gold); }
+.chip-prize .inline-icon { vertical-align: -2px; }
+.nav { grid-template-columns: repeat(3, 1fr); }
+.nav a { font-size: .9rem; gap: 6px; }
+.prizes-link { display: block; text-align: center; margin: 18px 0 4px; padding: 12px; border: 1px dashed var(--gold-deep); border-radius: 12px; text-decoration: none; font-weight: 600; }
+.prize-race { display: grid; gap: 10px; }
+.race-card {
+  display: grid; grid-template-columns: 40px 1fr auto; gap: 12px; align-items: center;
+  padding: 12px 14px; border-radius: 16px; border: 1px solid var(--gold-deep);
+  background: linear-gradient(160deg, #241d10, var(--panel));
+}
+.race-card.mine { box-shadow: 0 0 0 2px var(--gold) inset, 0 0 18px #e0b64a33; }
+.race-card.open { border-style: dashed; border-color: var(--line); background: var(--panel); }
+.race-card.open .race-title { color: var(--muted); }
+.race-icon { color: var(--gold); justify-self: center; }
+.race-card.open .race-icon { color: var(--muted); }
+.race-body { display: grid; gap: 2px; min-width: 0; }
+.race-game { font-size: .7rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
+.race-title { font-family: var(--font-display), Georgia, serif; color: var(--gold); font-size: 1.02rem; line-height: 1.2; }
+.race-next { font-size: .82rem; }
+.race-you { margin-left: 6px; font-size: .62rem; }
+.race-wins { font-family: var(--font-display), Georgia, serif; font-weight: 800; font-size: 1.6rem; color: var(--gold); text-align: right; line-height: 1; }
+.race-wins small { display: block; font-family: var(--font-body), system-ui, sans-serif; font-size: .65rem; color: var(--muted); font-weight: 600; margin-top: 3px; }
