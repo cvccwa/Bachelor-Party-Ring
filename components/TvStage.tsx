@@ -1,6 +1,7 @@
 "use client";
 
 import { useSyncExternalStore, type ReactNode } from "react";
+import { useTvTheme } from "@/lib/tvTheme";
 
 // The TV screens are laid out for 1920×1080 and scaled to fill whatever
 // display they're on (720p projector, 4:3 projector, 4K TV), so the layout
@@ -21,8 +22,9 @@ export function TvStage({ className = "", children }: { className?: string; chil
   const w = Math.max(BASE_W, (BASE_H * vw) / vh);
   const h = Math.max(BASE_H, (BASE_W * vh) / vw);
   const scale = vw / w;
+  const theme = useTvTheme();
   return (
-    <div className="tv-fit">
+    <div className={`tv-fit ${theme === "light" ? "light" : ""}`}>
       <div className={`tv tv-stage ${className}`} style={{ width: w, height: h, transform: `scale(${scale})` }}>
         {children}
       </div>
