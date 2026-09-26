@@ -62,22 +62,67 @@ export function ToastProvider({ children }: { children: ReactNode }) {
       {children}
       <div className="toasts" role="status" aria-live="polite" hidden={splashActive}>
         {items.map((t) => (
-          <div key={t.id} className={`toast toast-${t.variant}`}>
-            <span>{t.message}</span>
-            {t.action && (
-              <button
-                className="toast-action"
-                onClick={() => {
-                  t.action!.onClick();
-                  dismiss(t.id);
-                }}
-              >
-                {t.action.label}
-              </button>
-            )}
-          </div>
+          <SwipeToast key={t.id} item={t} onDismiss={() => dismiss(t.id)} />
         ))}
       </div>
     </ToastCtx.Provider>
+  );
+}
+
+// A toast that can be flicked away sideways. Short drags snap back; taps on
+// the action button are left alone.
+const SWIPE_DISMISS_PX = 80;
+
+function SwipeToast({ item, onDismiss }: { item: ToastItem; onDismiss: () => void }) {
+  const [dx, setDx] = useState(0);
+  const [leaving, setLeaving] = useState(0); // -1 / +1 while animating out
+  const [dragging, setDragging] = useState(false);
+  const start = useRef<{ x: number; y: number; id: number } | null>(null);
+
+  const onPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    if ((e.target as HTMLElement).closest("button")) return;
+    start.current = { x: e.clientX, y: e.clientY, id: e.pointerId };
+    e.currentTarget.setPointerCapture(e.pointerId);
+    setDragging(true);
+  };
+  const onPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!start.current || start.current.id !== e.pointerId) return;
+    setDx(e.clientX - start.current.x);
+  };
+  const end = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!start.current || start.current.id !== e.pointerId) return;
+    start.current = null;
+    setDragging(false);
+    if (Math.abs(dx) > SWIPE_DISMISS_PX) {
+      setLeaving(Math.sign(dx));
+      setTimeout(onDismiss, 180);
+    } else {
+      setDx(0);
+    }
+  };
+
+  const offset = leaving ? leaving * 480 : dx;
+  return (
+    <div
+      className={`toast toast-${item.variant} ${dragging ? "dragging" : ""}`}
+      style={{ transform: `translateX(${offset}px)`, opacity: leaving ? 0 : 1 - Math.min(Math.abs(dx) / 240, 0.7) }}
+      onPointerDown={onPointerDown}
+      onPointerMove={onPointerMove}
+      onPointerUp={end}
+      onPointerCancel={end}
+    >
+      <span>{item.message}</span>
+      {item.action && (
+        <button
+          className="toast-action"
+          onClick={() => {
+            item.action!.onClick();
+            onDismiss();
+          }}
+        >
+          {item.action.label}
+        </button>
+      )}
+    </div>
   );
 }

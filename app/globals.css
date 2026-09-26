@@ -501,3 +501,6 @@ body::after {
 .tyler-lost .big { margin-top: 8px; padding: 12px; font-size: 1.15rem; }
 .game.blocked { opacity: .55; border-style: dashed; }
 .game-note { font-size: .68rem; font-weight: 600; color: #ffb49a; letter-spacing: .02em; }
+/* swipe-to-dismiss toasts */
+.toast { touch-action: pan-y; user-select: none; -webkit-user-select: none; cursor: grab; transition: transform .18s ease-out, opacity .18s ease-out; }
+.toast.dragging { transition: none; cursor: grabbing; }
