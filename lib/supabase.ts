@@ -17,6 +17,7 @@ export const supabase = createClient(url, key, {
 export function friendlyError(err: { message?: string } | null | undefined): string {
   const msg = err?.message ?? "";
   if (msg.includes("competition_ended")) return "The competition is over — no more points.";
+  if (msg.includes("tyler_repeat")) return "No point — Tyler can't score the same game twice in a row. Play something else!";
   if (msg.includes("curse_lifted")) return "The curse is already lifted — Tyler's losses are free now.";
   if (msg.includes("bad_pin")) return "Wrong PIN.";
   if (msg.includes("roster_full")) return "Roster is full.";

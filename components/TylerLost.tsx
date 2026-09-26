@@ -7,11 +7,23 @@ import { useToast } from "@/components/Toast";
 import { CONFIG, GAME_LABELS } from "@/lib/config";
 import { useParty } from "@/lib/party";
 import { friendlyError, supabase } from "@/lib/supabase";
+import { usePlayerId } from "@/lib/usePlayerId";
 
 // The communal TYLER LOST button: anyone who saw it can log it (per spec,
 // it never relies on Tyler self-reporting). Only shown while he's cursed.
+// On Tyler's own phone it's replaced with a bit of gentle mockery.
+const TYLER_TAUNTS: { title: string; line: string }[] = [
+  { title: "Nice try, Ringbearer.", line: "Your losses are reported by the Fellowship. You just keep losing." },
+  { title: "This button isn't for you.", line: "The ring does not trust you with this power. Neither do we." },
+  { title: "Reporting your own losses?", line: "Honest, but no. Leave the tattling to your friends." },
+  { title: "The curse sees all.", line: "Don't worry, someone will tap it for you. Probably soon." },
+  { title: "Hands off, cursed one.", line: "Go win something instead. It's been a while." },
+];
+
 export function TylerLost() {
   const { raw, derived, refresh } = useParty();
+  const myId = usePlayerId();
+  const [taunt] = useState(() => TYLER_TAUNTS[Math.floor(Math.random() * TYLER_TAUNTS.length)]);
   const toast = useToast();
   const [sheet, setSheet] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -19,6 +31,17 @@ export function TylerLost() {
   if (!raw || !derived?.tyler || derived.curse.status !== "cursed") return null;
   const ended = !!raw.settings.ended_at;
   const tyler = derived.tyler;
+
+  if (myId === tyler.id) {
+    return (
+      <section className="curse tyler-lost tyler-taunt" aria-live="polite">
+        <b className="display">😈 {taunt.title}</b>
+        <p className="muted" style={{ margin: "6px 0 0" }}>
+          {taunt.line}
+        </p>
+      </section>
+    );
+  }
 
   async function tylerLost(game: string) {
     buzz([60, 40, 140]);

@@ -38,3 +38,17 @@ export const SIDE_PRIZE_TITLES: Record<string, string> = {
   "Super Smash Bros": "Warlord of the Four Realms",
   Kahoot: "Wizard of Useless Knowledge",
 };
+
+// Short versions of the side-prize titles, for badges on leaderboard rows.
+export const SIDE_PRIZE_SHORT: Record<string, string> = {
+  Cornhole: "Bags",
+  "Beer Pong": "Flowing Cup",
+  "Axe Throwing": "Axe-lord",
+  "Just Dance": "Twinkle-Toes",
+  "Super Smash Bros": "Warlord",
+  Kahoot: "Wizard",
+};
+
+// House rule: Tyler earns no point for winning the game he last played (win or
+// loss). These games are exempt. Enforced in report_win (supabase/migrations).
+export const TYLER_REPEAT_EXEMPT = ["Kahoot"];

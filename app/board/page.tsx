@@ -1,10 +1,11 @@
 "use client";
 
-import { SidePrizes } from "@/components/SidePrizes";
+import Link from "next/link";
 import { SoundToggle } from "@/components/SoundToggle";
 import { Standings } from "@/components/Standings";
 import { hotPlayerIds } from "@/lib/scoring";
 import { useNow } from "@/lib/useNow";
+import { prizeHolders, prizeRaces } from "@/lib/prizes";
 import { useParty } from "@/lib/party";
 import { usePlayerId } from "@/lib/usePlayerId";
 
@@ -85,14 +86,12 @@ export default function BoardPage() {
         winnerId={winner?.id}
         myId={myId}
         hotIds={hotPlayerIds(raw.events, now)}
+        prizes={prizeHolders(prizeRaces(players, raw.events))}
       />
 
-      {derived.sidePrizes.length > 0 && (
-        <>
-          <h2>Side prizes</h2>
-          <SidePrizes prizes={derived.sidePrizes} />
-        </>
-      )}
+      <Link href="/prizes" className="prizes-link">
+        🏆 See the side prize races →
+      </Link>
 
     </>
   );
