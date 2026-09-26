@@ -687,3 +687,71 @@ body::after {
 .tv-stage .step-2 .step-block { height: 170px; }
 .tv-stage .step-3 .step-block { height: 120px; }
 .tv-stage .awards-grid { grid-template-columns: 1.3fr 1fr; }
+
+/* ---- TV light theme: parchment (toggle on the TV; see lib/tvTheme.ts).
+   High contrast for washed-out projectors. Scoped to .tv-fit.light so phones
+   and the full-screen splashes keep the dark theme. */
+.tv-fit.light {
+  --bg: #f4ecd8;
+  --panel: #fffaf0;
+  --panel-2: #efe4cc;
+  --line: #c9b48a;
+  --text: #1f1409;
+  --muted: #5e4a2e;
+  --gold: #8a5a00;
+  --gold-deep: #a67c2a;
+  --ember: #b3321a;
+  --ember-deep: #d98c6e;
+  --elf: #2f6b2e;
+  --road-ink: #6b4a14;
+  color: var(--text);
+  background: radial-gradient(1400px 700px at 50% -10%, #fffaf0 0%, var(--bg) 60%);
+}
+.tv-fit.light .runes { background-image: linear-gradient(90deg, #8a5a00 0%, #c99a3a 50%, #8a5a00 100%); }
+.tv-fit.light .board li { box-shadow: 0 1px 0 #0000000d; }
+.tv-fit.light .board li.top { border-color: var(--gold); border-width: 2px; }
+.tv-fit.light .board li.cursed { background: #fde9df; box-shadow: 0 0 0 1px var(--ember) inset; animation: none; }
+.tv-fit.light .board li.ringback { background: #fbf1d6; animation: none; }
+.tv-fit.light .board li.cold { opacity: .5; }
+.tv-fit.light .chip { background: #fff; }
+.tv-fit.light .chip-ember { color: #9a2a12; border-color: var(--ember); background: #fde9df; }
+.tv-fit.light .chip-hot { color: #8a3a00; border-color: #d98a3a; background: #fff0d8; }
+.tv-fit.light .chip-cold { color: #3d4d5c; border-color: #8a9aaa; background: #eef2f5; }
+.tv-fit.light .chip-rival { color: #7a2e00; border-color: #c9743a; background: #fff0e0; }
+.tv-fit.light .chip-prize { color: #1f1409; background: linear-gradient(180deg, #f6dc8c, #e0b64a); border-color: #a67c2a; }
+.tv-fit.light .chip-master { color: #0f2a3a; background: linear-gradient(180deg, #e2f3ff, #a8d4ee); border-color: #5f9cc0; }
+.tv-fit.light .banner { background: linear-gradient(90deg, #fbeec4, #fffaf0); color: var(--text); }
+.tv-fit.light .curse,
+.tv-fit.light .curse:not(.lifted) {
+  background: linear-gradient(160deg, #fde9df, #fffaf0); border-color: var(--ember);
+  animation: none; box-shadow: 0 0 0 1px #b3321a44 inset;
+}
+.tv-fit.light .curse.lifted { background: linear-gradient(160deg, #e6f2e2, #fffaf0); border-color: #6a9a5a; }
+.tv-fit.light .curse-title { color: #a8321a; text-shadow: none; }
+.tv-fit.light .streak i.on { background: var(--ember); border-color: var(--ember); }
+.tv-fit.light .pending-penalty { background: #fde9df; border-color: var(--ember); }
+.tv-fit.light .pending-penalty b { color: #1f1409; }
+.tv-fit.light .drink { background: linear-gradient(160deg, #fff0d0, #fffaf0); border-color: #c98a1a; }
+.tv-fit.light .drink b { color: #7a4a00; }
+.tv-fit.light .drink-owed { animation: none; box-shadow: 0 0 0 1px #c98a1a inset; }
+.tv-fit.light .feed li.loss { background: #fde9df; }
+.tv-fit.light .feed li.loss .inline-icon { color: var(--ember); }
+.tv-fit.light .record .wl .l { color: var(--ember); }
+.tv-fit.light .qr svg { box-shadow: 0 0 0 1px var(--line); }
+/* Road: parchment map */
+.tv-fit.light .tv-road { background: linear-gradient(180deg, #fbf3df, #f1e5c8); border-color: var(--gold-deep); }
+.tv-fit.light .road path[stroke="#2c2519"] { stroke: #d9c7a0; }
+.tv-fit.light .road path[stroke="#6b5530"] { stroke: #8a6a30; }
+.tv-fit.light .road circle[fill="#1b1812"] { fill: #fffaf0; stroke: #8a6a30; }
+.tv-fit.light .road circle[fill="#1b1812"] + text { fill: #6b4a14; }
+.tv-fit.light .road-landmark text { fill: #4a3614; }
+.tv-fit.light .road .road-land { fill: #3a5a2a; }
+.tv-fit.light .road text.road-land[fill="#ff9a6b"] { fill: #a8321a; }
+.tv-fit.light .road rect[fill="#241f17"] { fill: #fffaf0; }
+.tv-fit.light .road rect[fill="#241f17"] + text { fill: #8a5a00; }
+/* Hall of Legends */
+.tv-fit.light .awards-crown { text-shadow: none; }
+.tv-fit.light .tale li { background: #efe4cc; }
+.tv-fit.light .tale b { color: #8a5a00; }
+.tv-fit.light .step-names b { color: var(--text); }
+.tv-fit.light .step-1 .step-block { background: linear-gradient(180deg, #ffe7a3, #e8bb45 45%, #b8862a); box-shadow: 0 0 30px #e0b64a66; }

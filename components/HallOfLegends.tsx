@@ -4,6 +4,7 @@ import { TvStage } from "@/components/TvStage";
 import { Flame } from "@/components/Flame";
 import { SidePrizes } from "@/components/SidePrizes";
 import { FullscreenToggle } from "@/components/FullscreenToggle";
+import { TvThemeToggle } from "@/components/TvThemeToggle";
 import { SoundToggle } from "@/components/SoundToggle";
 import { GAME_LABELS } from "@/lib/config";
 import { podium, tylerTale } from "@/lib/awards";
@@ -31,6 +32,7 @@ export function HallOfLegends({ raw, derived }: { raw: Raw; derived: Derived }) 
           </div>
         </div>
         <span className="spacer" />
+        <TvThemeToggle />
         <FullscreenToggle />
         <SoundToggle />
       </header>
