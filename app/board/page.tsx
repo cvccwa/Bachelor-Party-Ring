@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { DrinkStatus } from "@/components/DrinkVote";
 import { Flame } from "@/components/Flame";
 import { SoundToggle } from "@/components/SoundToggle";
 import { Standings } from "@/components/Standings";
@@ -79,6 +80,7 @@ export default function BoardPage() {
           )}
         </section>
       )}
+      <DrinkStatus />
 
       <Standings
         standings={derived.standings}

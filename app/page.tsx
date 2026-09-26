@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useToast } from "@/components/Toast";
 import { buzz, useBurst } from "@/components/Burst";
+import { DrinkVote } from "@/components/DrinkVote";
 import { Flame } from "@/components/Flame";
 import { GameIcon } from "@/components/GameIcon";
 import { TylerLost } from "@/components/TylerLost";
@@ -51,6 +52,8 @@ export default function ReportPage() {
     ? raw.events.filter((e) => e.player_id === me.id).sort((a, b) => b.seq - a.seq)[0]?.game
     : undefined;
   const repeatBlocked = (g: string) => g === tylerLast && !TYLER_REPEAT_EXEMPT.includes(g);
+  // A drink ordered by the Fellowship locks Tyler's wins until it's witnessed.
+  const drinkOwed = me.is_tyler && !!raw.drinkOrder && !raw.drinkOrder.drunk_at;
 
   async function report(game: string, e: React.MouseEvent) {
     if (!me || busy) return;
@@ -89,6 +92,7 @@ export default function ReportPage() {
           {total} pt{total === 1 ? "" : "s"} · {rankTitle(total, threshold)}
         </span>
         {me.is_tyler && derived.curse.status === "cursed" && <span className="chip chip-ember"><Flame size="1.05em" /> Cursed</span>}
+        {drinkOwed && <span className="chip chip-amber">🍺 Owes a drink</span>}
         <span className="spacer" />
         <button className="link-btn" onClick={() => setPlayerId(null)}>
           not me
@@ -109,17 +113,22 @@ export default function ReportPage() {
         {CONFIG.games.map((g) => (
           <button
             key={g}
-            className={`game ${repeatBlocked(g) ? "blocked" : ""}`}
-            disabled={busy || ended || repeatBlocked(g)}
+            className={`game ${drinkOwed ? "owed" : repeatBlocked(g) ? "blocked" : ""}`}
+            disabled={busy || ended || drinkOwed || repeatBlocked(g)}
             onClick={(e) => report(g, e)}
           >
             <GameIcon game={g} size={34} className="icon" />
             {GAME_LABELS[g] ?? g}
-            {repeatBlocked(g) && <span className="game-note">Played last · no point</span>}
+            {drinkOwed ? (
+              <span className="game-note amber">Drink first 🍺</span>
+            ) : (
+              repeatBlocked(g) && <span className="game-note">Played last · no point</span>
+            )}
           </button>
         ))}
       </div>
       <TylerLost />
+      <DrinkVote />
       {layer}
     </>
   );

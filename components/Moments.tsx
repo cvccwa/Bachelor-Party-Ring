@@ -3,8 +3,8 @@
 import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Flame } from "@/components/Flame";
-import { crownLine, ringBackLine, tylerLostLine } from "@/lib/flavor";
-import { detectMoments, type Moment, type Recap } from "@/lib/moments";
+import { crownLine, drinkDoneLine, drinkOrderedLine, ringBackLine, tylerLostLine } from "@/lib/flavor";
+import { detectDrink, detectMoments, drinkSeen, type DrinkSeen, type Moment, type Recap } from "@/lib/moments";
 import { useParty, type Raw } from "@/lib/party";
 import { setSplashActive } from "@/lib/splashState";
 import { play } from "@/lib/sound";
@@ -15,9 +15,9 @@ import type { Settings } from "@/lib/scoring";
 // someone is crowned), shown live on every open screen, plus a one-time
 // "while you were away" recap when the app is reopened.
 
-type Seen = { seq: number; settings: Settings };
+type Seen = { seq: number; settings: Settings; drink?: DrinkSeen };
 type Splash =
-  | { id: number; type: "moment"; variant: "curse" | "ring" | "crown" | "rank"; icon: string; title: string; line: string }
+  | { id: number; type: "moment"; variant: "curse" | "ring" | "crown" | "rank" | "drink"; icon: string; title: string; line: string }
   | { id: number; type: "recap"; recap: Recap };
 
 const SEEN_KEY = "bpr.seen";
@@ -56,6 +56,10 @@ function toSplash(m: Moment, id: number): Splash {
         title: `You've risen to ${m.title}!`,
         line: RANK_LINES[m.title] ?? "Your legend grows.",
       };
+    case "drinkOrdered":
+      return { id, type: "moment", variant: "drink", icon: "🍺", title: "Tyler must drink!", line: drinkOrderedLine() };
+    case "drinkDone":
+      return { id, type: "moment", variant: "drink", icon: "🍻", title: "Tyler drank!", line: drinkDoneLine(m.witness) };
     case "crowned":
       return {
         id,
@@ -84,6 +88,10 @@ function momentLine(m: Moment): string {
       return "💍 Tyler's curse broke — the ring returned";
     case "rankUp":
       return `${RANK_ICONS[m.title] ?? "⭐"} You rose to ${m.title}`;
+    case "drinkOrdered":
+      return "🍺 The Fellowship voted — Tyler owed a drink";
+    case "drinkDone":
+      return `🍻 Tyler drank${m.witness ? ` (seen by ${m.witness})` : ""}`;
     case "tylerLost":
       return "";
   }
@@ -111,7 +119,7 @@ export function Moments() {
     if (seen.current === undefined) seen.current = loadSeen();
     const maxSeq = raw.events.reduce((m, e) => Math.max(m, e.seq), 0);
     const prev = seen.current;
-    const next: Seen = { seq: Math.max(maxSeq, prev?.seq ?? 0), settings: raw.settings };
+    const next: Seen = { seq: Math.max(maxSeq, prev?.seq ?? 0), settings: raw.settings, drink: drinkSeen(raw.drinkOrder) };
     seen.current = next;
     saveSeen(next);
 
@@ -119,7 +127,10 @@ export function Moments() {
     away.current = false;
     if (!prev || quiet.current) return; // first ever visit, or host panel
 
-    const { moments, recap, newCount } = detectMoments(raw.players, raw.events, raw.settings, prev, me.current);
+    const found = detectMoments(raw.players, raw.events, raw.settings, prev, me.current);
+    const moments = [...detectDrink(prev.drink, raw.drinkOrder, raw.players), ...found.moments];
+    const { newCount } = found;
+    const recap = { ...found.recap, moments };
     if (wasAway) {
       if (newCount > 0 || moments.length > 0) setQueue((q) => [...q, { id: nextId.current++, type: "recap", recap }]);
     } else if (moments.length > 0) {
@@ -144,7 +155,7 @@ export function Moments() {
 
   useEffect(() => {
     setSplashActive(!!current);
-    if (current?.type === "moment") play(current.variant === "rank" ? "ring" : current.variant);
+    if (current?.type === "moment") play(current.variant === "rank" || current.variant === "drink" ? "ring" : current.variant);
   }, [current]);
   useEffect(() => () => setSplashActive(false), []);
 

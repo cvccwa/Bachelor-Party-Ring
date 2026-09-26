@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { DrinkStatus } from "@/components/DrinkVote";
 import { Flame } from "@/components/Flame";
 import { GameIcon } from "@/components/GameIcon";
 import { HallOfLegends } from "@/components/HallOfLegends";
@@ -110,6 +111,7 @@ export default function TvPage() {
               )}
             </section>
           )}
+          <DrinkStatus />
 
           <section key={showPrizes ? "prizes" : "qr"} className="panel tv-rotator">
             {showPrizes ? (

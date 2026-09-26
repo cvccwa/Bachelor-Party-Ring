@@ -566,3 +566,43 @@ body::after {
   .flame-spark { opacity: 0; }
 }
 .curse-title .flame { width: 1.35em !important; height: 1.35em !important; vertical-align: -0.3em; }
+
+/* ---- "Tyler needs a drink" */
+:root { --amber: #f0a830; --amber-deep: #8a5410; }
+.btn-amber { background: linear-gradient(180deg, #ffc65a, var(--amber-deep)); color: #1a1406; border: 0; }
+.drink {
+  margin-top: 14px; padding: 12px 14px; border-radius: 14px;
+  border: 1px solid var(--amber-deep); background: linear-gradient(160deg, #2a1d08, #1b1812);
+}
+.drink b { color: #ffd488; }
+.drink p { margin: 6px 0 0; font-size: .85rem; }
+.drink .btn { width: 100%; margin-top: 8px; }
+.drink .big { padding: 12px; font-size: 1.15rem; }
+.drink-quiet { padding: 10px 14px; font-size: .88rem; border-style: dashed; }
+.drink-owed {
+  border-color: var(--amber); text-align: center;
+  box-shadow: 0 0 0 1px #f0a83055 inset, 0 0 22px #f0a83044;
+  animation: drink-glow 2.2s ease-in-out infinite;
+}
+@keyframes drink-glow { 50% { box-shadow: 0 0 0 1px #f0a83088 inset, 0 0 34px #f0a83077; } }
+.drink-tally { display: inline-flex; gap: 4px; }
+.drink-tally i { width: 12px; height: 16px; border-radius: 2px 2px 5px 5px; border: 1.5px solid var(--amber-deep); }
+.drink-tally i.on { background: linear-gradient(180deg, #fff3d0 0 22%, var(--amber) 22%); border-color: var(--amber); }
+.game.owed { opacity: .5; border-style: dashed; }
+.game-note.amber { color: #ffd488; }
+.chip-amber { color: #ffd488; border-color: var(--amber-deep); background: #2a1d08; }
+
+/* drink splash: bubbles rise */
+.splash-drink { background: radial-gradient(circle at 50% 55%, #4a3208ee 0%, #0f0d0af2 70%); }
+.splash-drink .splash-title { color: #ffd488; text-shadow: 0 0 26px #f0a83099; }
+.splash-drink .splash-rays { background: repeating-conic-gradient(from 0deg, #f0a83022 0deg 8deg, transparent 8deg 20deg); }
+.splash-drink .splash-icon { animation: icon-pop .7s cubic-bezier(.2, 1.6, .4, 1) both, chug 1.2s ease-in-out .7s infinite; }
+.splash-drink .splash-particles i {
+  background: #fff3d0cc; box-shadow: 0 0 6px #ffd488; width: 8px; height: 8px;
+  left: calc(8% + var(--i) * 6.5%); top: auto; bottom: -10px;
+  animation: ember 2.2s ease-in calc(var(--i) * 110ms) infinite;
+}
+@keyframes chug { 50% { transform: rotate(-18deg) translateY(-4px); } }
+@media (prefers-reduced-motion: reduce) { .drink-owed, .splash-drink .splash-icon { animation: none; } }
+.drink-status { margin: 14px 0 0; text-align: left; }
+.tv .tv-side .drink { margin: 0; padding: 12px 14px; }
