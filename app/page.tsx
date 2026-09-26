@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useToast } from "@/components/Toast";
 import { buzz, useBurst } from "@/components/Burst";
+import { Flame } from "@/components/Flame";
 import { GameIcon } from "@/components/GameIcon";
 import { TylerLost } from "@/components/TylerLost";
 import { CONFIG, GAME_LABELS, TYLER_REPEAT_EXEMPT } from "@/lib/config";
@@ -87,7 +88,7 @@ export default function ReportPage() {
         <span className="chip chip-gold">
           {total} pt{total === 1 ? "" : "s"} · {rankTitle(total, threshold)}
         </span>
-        {me.is_tyler && derived.curse.status === "cursed" && <span className="chip chip-ember">Cursed</span>}
+        {me.is_tyler && derived.curse.status === "cursed" && <span className="chip chip-ember"><Flame size="1.05em" /> Cursed</span>}
         <span className="spacer" />
         <button className="link-btn" onClick={() => setPlayerId(null)}>
           not me

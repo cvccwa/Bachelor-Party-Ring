@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { Flame } from "@/components/Flame";
 import { SoundToggle } from "@/components/SoundToggle";
 import { Standings } from "@/components/Standings";
 import { hotPlayerIds } from "@/lib/scoring";
@@ -51,7 +52,7 @@ export default function BoardPage() {
           {curse.status === "cursed" ? (
             <>
               <div className="row">
-                <b className="display">🔥 {tyler.name} is cursed</b>
+                <b className="display curse-title"><Flame /> {tyler.name} is cursed</b>
                 <span className="spacer" />
                 <span className="muted">
                   Streak{" "}
