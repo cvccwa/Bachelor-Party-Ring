@@ -755,3 +755,35 @@ body::after {
 .tv-fit.light .tale b { color: #8a5a00; }
 .tv-fit.light .step-names b { color: var(--text); }
 .tv-fit.light .step-1 .step-block { background: linear-gradient(180deg, #ffe7a3, #e8bb45 45%, #b8862a); box-shadow: 0 0 30px #e0b64a66; }
+
+/* ---- TV stage fills the screen: the standings and side column stretch to
+   the bottom, with larger type for projectors. */
+.tv.tv-stage:not(.awards) { display: flex; flex-direction: column; }
+.tv-stage .tv-grid { flex: 1; min-height: 0; align-items: stretch; margin-top: 14px; }
+.tv-stage .tv-grid > .board { min-height: 0; }
+.tv-stage .board-cols-2 {
+  grid-template-rows: repeat(var(--rows), minmax(0, 1fr));
+  height: min(100%, calc(var(--rows) * 120px)); row-gap: 8px; column-gap: 12px;
+}
+.tv-stage .board-compact li { padding: 0 20px; grid-template-columns: 52px 1fr auto; min-height: 0; }
+.tv-stage .board-compact .rank { font-size: 1.5rem; }
+.tv-stage .board-compact .who { gap: 14px; }
+.tv-stage .board-compact .who b { font-size: 2rem; }
+.tv-stage .board-compact .pts { font-size: 2.8rem; }
+.tv-stage .board-compact .chip { font-size: .95rem; padding: 3px 12px; }
+.tv-stage .tv-goal { font-size: 1.2rem; padding: 8px 16px; }
+.tv-stage .tv-side { display: flex; flex-direction: column; min-height: 0; gap: 14px; }
+.tv-stage .tv-side > * { flex: none; margin: 0; }
+.tv-stage .tv-side .tv-feed { flex: 1; min-height: 0; overflow: hidden; }
+.tv-stage .tv-side h2 { font-size: 1.5rem; }
+.tv-stage .tv-side .curse-title, .tv-stage .tv-side .drink b { font-size: 1.35rem; }
+.tv-stage .tv-side .curse p, .tv-stage .tv-side .drink p, .tv-stage .pending-penalty { font-size: 1.1rem; }
+.tv-stage .tv-join p, .tv-stage .record li, .tv-stage .record-foot { font-size: 1.15rem; }
+.tv-stage .prizes .panel { font-size: 1.05rem; }
+.tv-stage .feed li { font-size: 1.2rem; padding: 10px 14px; }
+/* keep room for the feed when the curse, penalty and drink panels all show */
+.tv-stage .road { max-height: 270px; }
+.tv-stage .tv-join .qr svg { width: 112px; height: 112px; padding: 6px; }
+.tv-stage .tv-side .panel, .tv-stage .tv-side .curse, .tv-stage .tv-side .drink { padding: 10px 16px; }
+.tv-stage .drink-status p { display: none; }
+.tv-stage .tv-side .tv-feed { min-height: 150px; }
