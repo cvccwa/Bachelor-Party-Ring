@@ -657,3 +657,33 @@ body::after {
 .race-card.master .race-title { color: #bfe3f7; }
 .pending-penalty { margin: 8px 0 0; padding: 6px 10px; border-radius: 10px; background: #2a120a; border: 1px dashed var(--ember); font-size: .92rem; }
 .pending-penalty b { color: #fff; }
+
+/* ---- TV stage: fixed 1080p layout scaled to any screen (components/TvStage).
+   Everything inside uses fixed sizes, not viewport units or width media
+   queries, so it looks identical on a projector and a 4K TV. */
+.tv-fit {
+  position: fixed; inset: 0; overflow: hidden; z-index: 2;
+  background: radial-gradient(1400px 700px at 50% -10%, #2a2216 0%, var(--bg) 60%);
+}
+.tv.tv-stage { position: absolute; inset: auto; left: 0; top: 0; transform-origin: 0 0; overflow: hidden; padding: 48px; background: none; }
+.tv-stage .tv-head h1 { font-size: 3.4rem; }
+.tv-stage .tv-grid { grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); }
+.tv-stage .road { max-height: 324px; }
+.tv-stage .board-cols-2 { grid-auto-flow: column; grid-template-rows: repeat(var(--rows), auto); grid-template-columns: 1fr 1fr; column-gap: 10px; }
+.tv-stage .board-compact li { padding: 3px 18px; }
+.tv-stage .board-compact .who b { font-size: 1.3rem; }
+.tv-stage .board-compact .pts { font-size: 1.8rem; }
+.tv-stage .board-compact .chip { font-size: .7rem; }
+.tv-stage .tv-join .qr svg { width: 130px; height: 130px; }
+.tv-stage .tv-side { gap: 12px; }
+.tv-stage .tv-side .panel, .tv-stage .tv-side .curse { padding: 12px 14px; }
+.tv-stage.awards h1 { font-size: 4rem; }
+.tv-stage .awards-crown { font-size: 2.4rem; }
+.tv-stage .podium { gap: 24px; }
+.tv-stage .step-names b { font-size: 1.9rem; }
+.tv-stage .step-crown { font-size: 3.4rem; }
+.tv-stage .step-block { font-size: 2.4rem; }
+.tv-stage .step-1 .step-block { height: 240px; }
+.tv-stage .step-2 .step-block { height: 170px; }
+.tv-stage .step-3 .step-block { height: 120px; }
+.tv-stage .awards-grid { grid-template-columns: 1.3fr 1fr; }

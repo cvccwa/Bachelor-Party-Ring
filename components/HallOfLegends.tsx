@@ -1,5 +1,6 @@
 "use client";
 
+import { TvStage } from "@/components/TvStage";
 import { Flame } from "@/components/Flame";
 import { SidePrizes } from "@/components/SidePrizes";
 import { SoundToggle } from "@/components/SoundToggle";
@@ -20,7 +21,7 @@ export function HallOfLegends({ raw, derived }: { raw: Raw; derived: Derived }) 
   const tale = tylerTale(derived, raw.events);
 
   return (
-    <div className="tv awards">
+    <TvStage className="awards">
       <header className="tv-head">
         <div>
           <h1>Hall of Legends</h1>
@@ -102,6 +103,6 @@ export function HallOfLegends({ raw, derived }: { raw: Raw; derived: Derived }) 
           </section>
         )}
       </div>
-    </div>
+    </TvStage>
   );
 }

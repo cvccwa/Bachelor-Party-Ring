@@ -11,6 +11,7 @@ import { RoadToDoom } from "@/components/RoadToDoom";
 import { SidePrizes } from "@/components/SidePrizes";
 import { SoundToggle } from "@/components/SoundToggle";
 import { Standings } from "@/components/Standings";
+import { TvStage } from "@/components/TvStage";
 import { GAME_LABELS } from "@/lib/config";
 import { useParty } from "@/lib/party";
 import { ago, coldPlayerIds, topRivalry, tylerRecord } from "@/lib/banter";
@@ -35,9 +36,9 @@ export default function TvPage() {
 
   if (!raw || !derived) {
     return (
-      <div className="tv">
+      <TvStage>
         <p className="muted">{error ? `Can't reach the scoreboard: ${error}` : "Summoning the scoreboard…"}</p>
-      </div>
+      </TvStage>
     );
   }
 
@@ -60,7 +61,7 @@ export default function TvPage() {
   const feed = [...raw.events].sort((a, b) => b.seq - a.seq).slice(0, 5);
 
   return (
-    <div className="tv">
+    <TvStage>
       <header className="tv-head">
         <div>
           <h1>The Fellowship Standings</h1>
@@ -192,6 +193,6 @@ export default function TvPage() {
           </section>
         </aside>
       </div>
-    </div>
+    </TvStage>
   );
 }
