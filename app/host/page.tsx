@@ -135,6 +135,26 @@ function Panel({ pin, onLock }: { pin: string; onLock: () => void }) {
         )}
       </div>
 
+      <h2>Drink vote</h2>
+      <div className="panel">
+        <p style={{ marginTop: 0 }} className="muted">
+          {raw.drinkOrder && !raw.drinkOrder.drunk_at
+            ? "Tyler owes a drink right now (his wins are locked)."
+            : `${raw.drinkVotes.length} vote${raw.drinkVotes.length === 1 ? "" : "s"} in.`}{" "}
+          Clearing wipes the votes and any unpaid drink — for mis-taps.
+        </p>
+        <button
+          className="btn"
+          disabled={!raw.drinkVotes.length && !(raw.drinkOrder && !raw.drinkOrder.drunk_at)}
+          onClick={() =>
+            confirm("Clear the drink votes and any owed drink?") &&
+            call("admin_clear_drink", {}, "Drink vote cleared.")
+          }
+        >
+          Clear drink vote
+        </button>
+      </div>
+
       <h2>Roster</h2>
       <div className="panel">
         <div style={{ display: "grid", gap: 6 }}>

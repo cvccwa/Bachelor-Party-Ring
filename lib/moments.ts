@@ -10,7 +10,9 @@ export type Moment =
   | { kind: "crowned"; playerName: string; fallback: boolean }
   | { kind: "ringBack"; reason: "threshold" | "streak" }
   | { kind: "tylerLost"; game: string }
-  | { kind: "rankUp"; title: string };
+  | { kind: "rankUp"; title: string }
+  | { kind: "drinkOrdered" }
+  | { kind: "drinkDone"; witness: string | null };
 
 // Rank titles in ascending order, for detecting a personal level-up.
 const TITLE_ORDER = ["Lost in the Marshes", "Hobbit", "Ranger", "Elf-lord", "Crowned"];
@@ -64,4 +66,27 @@ export function detectMoments(
       moments,
     },
   };
+}
+
+// Drink orders as a phone last saw them: the latest order's id and whether it
+// had been drunk. Kept alongside `seen` so reopening the app recaps them too.
+export type DrinkSeen = { id: string; orderedAt: string; drunk: boolean } | null;
+type OrderRow = { id: string; ordered_at: string; drunk_at: string | null; witness_id: string | null };
+
+export function drinkSeen(order: OrderRow | null): DrinkSeen {
+  return order ? { id: order.id, orderedAt: order.ordered_at, drunk: !!order.drunk_at } : null;
+}
+
+export function detectDrink(before: DrinkSeen | undefined, order: OrderRow | null, players: Player[]): Moment[] {
+  if (before === undefined || !order) return []; // no record yet: don't guess
+  const out: Moment[] = [];
+  const isNew = !before || (order.id !== before.id && Date.parse(order.ordered_at) > Date.parse(before.orderedAt));
+  // A newer order since we looked (it may already have been drunk, too).
+  if (isNew) out.push({ kind: "drinkOrdered" });
+  // Drunk since we looked. (An older order resurfacing after the host clears
+  // a pending one is neither new nor newly drunk.)
+  if (order.drunk_at && (isNew || (order.id === before?.id && !before.drunk))) {
+    out.push({ kind: "drinkDone", witness: players.find((p) => p.id === order.witness_id)?.name ?? null });
+  }
+  return out;
 }

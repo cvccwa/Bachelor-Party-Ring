@@ -63,3 +63,18 @@ export const crownLine = () =>
     "Songs will be sung. Mostly off-key.",
     "First to the mark — glory eternal (until next year).",
   ]);
+
+export const drinkOrderedLine = () =>
+  pick([
+    "The Fellowship has spoken. No more wins until he drinks.",
+    "By majority vote: Tyler drinks. Democracy is beautiful.",
+    "One does not simply refuse the Fellowship. Drink up.",
+    "The council of Elrond has ruled. Bottoms up, Ringbearer.",
+  ]);
+
+export const drinkDoneLine = (witness: string | null) =>
+  pick([
+    "The debt is paid. Tyler may win again.",
+    "Down the hatch. His wins are unlocked.",
+    "A drink worthy of the Prancing Pony. Carry on.",
+  ]) + (witness ? ` (Witnessed by ${witness}.)` : "");

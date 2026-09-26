@@ -5,7 +5,16 @@ import { CONFIG } from "./config";
 import { derive, type Derived, type Player, type PointEvent, type Settings } from "./scoring";
 import { supabase } from "./supabase";
 
-export type Raw = { players: Player[]; events: PointEvent[]; settings: Settings };
+export type DrinkVote = { player_id: string; created_at: string };
+export type DrinkOrder = { id: string; ordered_at: string; drunk_at: string | null; witness_id: string | null };
+export type Raw = {
+  players: Player[];
+  events: PointEvent[];
+  settings: Settings;
+  drinkVotes: DrinkVote[];
+  // The latest drink order (pending or last paid), if any.
+  drinkOrder: DrinkOrder | null;
+};
 
 const DEFAULT_SETTINGS: Settings = {
   win_threshold: CONFIG.winThreshold,
@@ -15,17 +24,21 @@ const DEFAULT_SETTINGS: Settings = {
 };
 
 async function fetchAll(): Promise<Raw> {
-  const [p, e, s] = await Promise.all([
+  const [p, e, s, v, o] = await Promise.all([
     supabase.from("players").select("id,name,is_tyler,sort_order").order("sort_order"),
     supabase.from("point_events").select("id,seq,player_id,game,delta,created_at").order("seq"),
     supabase.from("settings").select("win_threshold,tyler_streak_length,curse_enabled,ended_at").eq("id", 1).maybeSingle(),
+    supabase.from("drink_votes").select("player_id,created_at"),
+    supabase.from("drink_orders").select("id,ordered_at,drunk_at,witness_id").order("ordered_at", { ascending: false }).limit(1),
   ]);
-  const err = p.error ?? e.error ?? s.error;
+  const err = p.error ?? e.error ?? s.error ?? v.error ?? o.error;
   if (err) throw err;
   return {
     players: (p.data ?? []) as Player[],
     events: (e.data ?? []) as PointEvent[],
     settings: (s.data as Settings | null) ?? DEFAULT_SETTINGS,
+    drinkVotes: (v.data ?? []) as DrinkVote[],
+    drinkOrder: ((o.data ?? [])[0] as DrinkOrder | undefined) ?? null,
   };
 }
 
@@ -82,6 +95,8 @@ export function PartyProvider({ children }: { children: ReactNode }) {
       .on("postgres_changes", { event: "*", schema: "public", table: "point_events" }, onChange)
       .on("postgres_changes", { event: "*", schema: "public", table: "players" }, onChange)
       .on("postgres_changes", { event: "*", schema: "public", table: "settings" }, onChange)
+      .on("postgres_changes", { event: "*", schema: "public", table: "drink_votes" }, onChange)
+      .on("postgres_changes", { event: "*", schema: "public", table: "drink_orders" }, onChange)
       // (re)subscribing may have missed changes, so refetch whenever we connect
       .subscribe((status) => status === "SUBSCRIBED" && onChange());
     const poll = setInterval(onChange, CONFIG.pollFallbackMs);
