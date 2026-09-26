@@ -52,3 +52,25 @@ export const SIDE_PRIZE_SHORT: Record<string, string> = {
 // House rule: Tyler earns no point for winning the game he last played (win or
 // loss). These games are exempt. Enforced in report_win (supabase/migrations).
 export const TYLER_REPEAT_EXEMPT = ["Kahoot"];
+
+// Curse spin: the wheel's segments. Keep in sync with private.penalty_list()
+// in supabase/migrations/20260926020000_tyler_penalties.sql (the server picks).
+export const PENALTIES = [
+  "Switch hands for your next game",
+  "Wear the silly hat",
+  "Take a drink",
+  "Gollum voice for 5 minutes",
+  "Bow to the leader",
+  "Toast whoever beat you",
+  'Say "my precious" before your next turn',
+  "Narrate your next game like Gandalf",
+];
+
+// Tyler's display name while his total is below zero.
+export const GOLLUM_NAME = "Sméagol";
+
+// First player to win every game at least once.
+export const MASTERY_TITLE = "Fellowship of All Trades";
+
+// No win for this long: the row fades on the leaderboard ("lost in Moria").
+export const COLD_AFTER_MS = 45 * 60_000;

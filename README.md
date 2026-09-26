@@ -17,6 +17,14 @@ Nothing is stored as a total. Every number is derived by replaying `point_events
 - **Normal players:** a win is +1, and a loss is free.
 - **Tyler:** a win is +1 and every loss is −1 while he's cursed. He also earns no point for winning the same game he last played (win or loss); Kahoot is exempt. The curse lifts when his total reaches the threshold **or** he wins N in a row. After that, his losses are free.
 - **Tyler needs a drink:** anyone who has logged a win can vote from the Report tab. A strict majority of those players orders a drink, with a minimum of 2 votes. Votes don't expire, and they reset when a drink is ordered. While he owes a drink, Tyler can't log wins; his losses still count. One other player taps **I saw him drink** to unlock him. Voting reopens 10 minutes after that. The host can clear a mis-tapped vote from the host panel. The rules are enforced in SQL by `vote_drink`, `confirm_drink` and `report_win`.
+- **Curse spin:** every loss logged against Tyler spins a penalty wheel (picked in SQL by a trigger on `point_events`, so every screen agrees). The TV shows the wheel; phones show the result, and anyone but Tyler taps **HE DID IT** to confirm. The list lives in `private.penalty_list()` and `PENALTIES` in `lib/config.ts`.
+- **Gollum mode:** while Tyler's total is below zero, every screen shows him as "Sméagol". This is display only; the roster name is unchanged.
+- **Extras (display only, no points):**
+  - a splash when someone takes the lead alone ("seizes the throne")
+  - a TV rivalry callout when neighbours in the standings are tied or one point apart
+  - the **Fellowship of All Trades** badge for the first player to win every game
+  - faded "Lost in Moria" rows after 45 minutes without a win
+  - Tyler's per-game record on the TV
 - **Grand winner:** the first player whose running total crosses the threshold. If the host ends the competition before anyone gets there, the highest total wins, and a tie goes to whoever reached that total first.
 
 `lib/config.ts` holds the games list and the default numbers. The live threshold, streak length and curse on/off switch are kept in the `settings` table, so the host can change them mid-party without a deploy.

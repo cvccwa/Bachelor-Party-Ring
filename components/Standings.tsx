@@ -17,6 +17,10 @@ type Props = {
   winnerId?: string | null;
   myId?: string | null;
   hotIds?: Set<string>;
+  /** No win in a while: row fades with a "lost in Moria" tag. */
+  coldIds?: Set<string>;
+  /** Holder of the win-every-game prize. */
+  masterId?: string | null;
   /** player id → games whose side prize they hold (shown as gold badges). */
   prizes?: Map<string, string[]>;
   compact?: boolean;
@@ -27,7 +31,19 @@ type Props = {
 const reduceMotion = () =>
   typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
 
-export function Standings({ standings, threshold, curse, winnerId, myId, hotIds, prizes, compact, twoColumns }: Props) {
+export function Standings({
+  standings,
+  threshold,
+  curse,
+  winnerId,
+  myId,
+  hotIds,
+  coldIds,
+  masterId,
+  prizes,
+  compact,
+  twoColumns,
+}: Props) {
   const rows = useRef(new Map<string, HTMLLIElement>());
   const lastPos = useRef(new Map<string, { x: number; y: number }>());
 
@@ -57,6 +73,7 @@ export function Standings({ standings, threshold, curse, winnerId, myId, hotIds,
         const cursed = isTyler && curse.status === "cursed";
         const ringBack = isTyler && curse.status === "lifted";
         const hot = hotIds?.has(s.player.id);
+        const cold = !hot && coldIds?.has(s.player.id);
         const pct = Math.max(0, Math.min(100, (s.total / threshold) * 100));
         return (
           <li
@@ -70,6 +87,7 @@ export function Standings({ standings, threshold, curse, winnerId, myId, hotIds,
               cursed ? "cursed" : "",
               ringBack ? "ringback" : "",
               s.player.id === myId ? "me-row" : "",
+              cold ? "cold" : "",
             ].join(" ")}
           >
             <span className="rank">{s.rank}</span>
@@ -87,7 +105,9 @@ export function Standings({ standings, threshold, curse, winnerId, myId, hotIds,
                     <GameIcon game={g} size={12} className="inline-icon" /> {SIDE_PRIZE_SHORT[g] ?? g}
                   </span>
                 ))}
+                {masterId === s.player.id && <span className="chip chip-master">🧭 All Trades</span>}
                 {hot && <span className="chip chip-hot">🔥 On fire</span>}
+                {cold && <span className="chip chip-cold">🕸️ Lost in Moria</span>}
                 {s.losses > 0 && <span className="chip chip-ember">−{s.losses}</span>}
               </span>
               <span className="progress">

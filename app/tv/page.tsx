@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { DrinkStatus } from "@/components/DrinkVote";
 import { Flame } from "@/components/Flame";
 import { GameIcon } from "@/components/GameIcon";
+import { PendingPenalty } from "@/components/PenaltyCard";
 import { HallOfLegends } from "@/components/HallOfLegends";
 import { JoinQR } from "@/components/JoinQR";
 import { RoadToDoom } from "@/components/RoadToDoom";
@@ -12,6 +13,8 @@ import { SoundToggle } from "@/components/SoundToggle";
 import { Standings } from "@/components/Standings";
 import { GAME_LABELS } from "@/lib/config";
 import { useParty } from "@/lib/party";
+import { ago, coldPlayerIds, topRivalry, tylerRecord } from "@/lib/banter";
+import { mastery } from "@/lib/prizes";
 import { hotPlayerIds } from "@/lib/scoring";
 import { useNow } from "@/lib/useNow";
 
@@ -45,7 +48,15 @@ export default function TvPage() {
   const byId = new Map(players.map((p) => [p.id, p]));
   const winner = derived.grandWinner ? byId.get(derived.grandWinner.playerId) : null;
   const curse = derived.curse;
-  const showPrizes = derived.sidePrizes.length > 0 && slide % 2 === 1;
+  const rival = topRivalry(derived.standings);
+  const record = derived.tyler ? tylerRecord(derived.tyler, raw.events) : null;
+  // Rotating card: join QR, then side prizes and Tyler's record once they exist.
+  const cards = [
+    "qr",
+    ...(derived.sidePrizes.length > 0 ? ["prizes"] : []),
+    ...(record && record.wins + record.losses > 0 ? ["record"] : []),
+  ];
+  const card = cards[slide % cards.length];
   const feed = [...raw.events].sort((a, b) => b.seq - a.seq).slice(0, 5);
 
   return (
@@ -58,6 +69,12 @@ export default function TvPage() {
           </div>
         </div>
         <span className="spacer" />
+        {rival && (
+          <span className="chip chip-rival tv-goal">
+            ⚔️ {rival.a.name} vs {rival.b.name} ·{" "}
+            {rival.gap === 0 ? `dead even at ${rival.total}` : "one point apart"}
+          </span>
+        )}
         <span className="chip chip-gold tv-goal">First to {settings.win_threshold} is crowned</span>
         <SoundToggle />
       </header>
@@ -86,6 +103,8 @@ export default function TvPage() {
           curse={curse}
           winnerId={winner?.id}
           hotIds={hotPlayerIds(raw.events, now)}
+          coldIds={coldPlayerIds(players, raw.events, now)}
+          masterId={mastery(players, raw.events).master?.id}
           compact
           twoColumns
         />
@@ -105,6 +124,7 @@ export default function TvPage() {
                     </span>{" "}
                     · ring returns at {settings.win_threshold} pts or {settings.tyler_streak_length} straight wins
                   </p>
+                  <PendingPenalty />
                 </>
               ) : (
                 <b className="display">💍 The ring has returned to {derived.tyler.name}</b>
@@ -113,11 +133,31 @@ export default function TvPage() {
           )}
           <DrinkStatus />
 
-          <section key={showPrizes ? "prizes" : "qr"} className="panel tv-rotator">
-            {showPrizes ? (
+          <section key={card} className="panel tv-rotator">
+            {card === "prizes" ? (
               <>
                 <h2 style={{ marginTop: 0 }}>Side prizes</h2>
                 <SidePrizes prizes={derived.sidePrizes} />
+              </>
+            ) : card === "record" && record && derived.tyler ? (
+              <>
+                <h2 style={{ marginTop: 0 }}>{derived.tyler.name}&apos;s record</h2>
+                <ul className="record">
+                  {record.games.map((g) => (
+                    <li key={g.game}>
+                      <GameIcon game={g.game} size={20} className="inline-icon" />
+                      {GAME_LABELS[g.game] ?? g.game}
+                      <span className="wl">
+                        {g.wins} <span className="muted">–</span> <span className="l">{g.losses}</span>
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+                <p className="record-foot muted">
+                  {record.lastWinAt
+                    ? `Last win: ${ago(now - record.lastWinAt)} ago`
+                    : `Still waiting on his first win (0 for ${record.losses}).`}
+                </p>
               </>
             ) : (
               <div className="tv-join">

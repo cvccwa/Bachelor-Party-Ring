@@ -3,11 +3,13 @@
 import Link from "next/link";
 import { DrinkStatus } from "@/components/DrinkVote";
 import { Flame } from "@/components/Flame";
+import { PendingPenalty } from "@/components/PenaltyCard";
 import { SoundToggle } from "@/components/SoundToggle";
 import { Standings } from "@/components/Standings";
 import { hotPlayerIds } from "@/lib/scoring";
 import { useNow } from "@/lib/useNow";
-import { prizeHolders, prizeRaces } from "@/lib/prizes";
+import { coldPlayerIds } from "@/lib/banter";
+import { mastery, prizeHolders, prizeRaces } from "@/lib/prizes";
 import { useParty } from "@/lib/party";
 import { usePlayerId } from "@/lib/usePlayerId";
 
@@ -68,6 +70,7 @@ export default function BoardPage() {
                 Every loss costs him 1. The ring returns at {threshold} points or {settings.tyler_streak_length} wins
                 in a row. Log his losses from the Report a win tab.
               </p>
+              <PendingPenalty />
             </>
           ) : (
             <>
@@ -89,6 +92,8 @@ export default function BoardPage() {
         winnerId={winner?.id}
         myId={myId}
         hotIds={hotPlayerIds(raw.events, now)}
+        coldIds={ended ? undefined : coldPlayerIds(players, raw.events, now)}
+        masterId={mastery(players, raw.events).master?.id}
         prizes={prizeHolders(prizeRaces(players, raw.events))}
       />
 

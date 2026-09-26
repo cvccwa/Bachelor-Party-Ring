@@ -23,6 +23,7 @@ export function friendlyError(err: { message?: string } | null | undefined): str
   if (msg.includes("drink_cooldown")) return "He just drank. Voting reopens 10 minutes after his last drink.";
   if (msg.includes("drink_not_active")) return "Log a win first to earn a vote.";
   if (msg.includes("drink_tyler")) return "Nice try, Tyler.";
+  if (msg.includes("no_penalty_pending")) return "Already confirmed — justice was served.";
   if (msg.includes("no_drink_pending")) return "Nothing owed — someone already confirmed it.";
   if (msg.includes("curse_lifted")) return "The curse is already lifted — Tyler's losses are free now.";
   if (msg.includes("bad_pin")) return "Wrong PIN.";

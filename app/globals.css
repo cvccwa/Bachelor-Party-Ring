@@ -606,3 +606,54 @@ body::after {
 @media (prefers-reduced-motion: reduce) { .drink-owed, .splash-drink .splash-icon { animation: none; } }
 .drink-status { margin: 14px 0 0; text-align: left; }
 .tv .tv-side .drink { margin: 0; padding: 12px 14px; }
+
+/* ---- throne / gollum splashes */
+.splash-throne { background: radial-gradient(circle at 50% 55%, #3a2a58ee 0%, #0f0d0af2 70%); }
+.splash-throne .splash-title { color: #f1cf72; text-shadow: 0 0 26px #b48cff88; }
+.splash-throne .splash-rays { background: repeating-conic-gradient(from 0deg, #b48cff22 0deg 8deg, transparent 8deg 20deg); }
+.splash-throne .splash-particles i { background: #d8c2ff; box-shadow: 0 0 10px #b48cff; }
+.splash-gollum { background: radial-gradient(circle at 50% 55%, #1f3a24ee 0%, #0a0d0af2 70%); animation: splash-in .2s ease-out, shake .5s ease-in-out .15s; }
+.splash-gollum .splash-title { color: #b8e0a0; text-shadow: 0 0 24px #4f8a4a99; font-style: italic; }
+.splash-gollum .splash-rays { background: repeating-conic-gradient(from 0deg, #4f8a4a22 0deg 8deg, transparent 8deg 20deg); }
+.splash-gollum .splash-particles i { background: #8fc27a; box-shadow: 0 0 8px #4f8a4a; }
+.splash-penalty {
+  display: grid; gap: 4px; margin: 14px auto 0; padding: 10px 14px; max-width: 26rem;
+  border: 1px solid var(--ember); border-radius: 12px; background: #2a120acc;
+  animation: rise .4s ease-out .5s both;
+}
+.splash-penalty span, .wheel-result span { font-size: .8rem; letter-spacing: .08em; text-transform: uppercase; color: #ffb49a; }
+.splash-penalty b { font-size: 1.25rem; color: #fff; }
+
+/* ---- penalty wheel (TV) */
+.wheel-wrap { position: relative; display: grid; justify-items: center; gap: 14px; margin-top: 8px; }
+.wheel { width: min(46vh, 420px); height: min(46vh, 420px); filter: drop-shadow(0 0 30px #d9542b66); }
+.wheel-spin { animation: wheel-spin 5s cubic-bezier(.12, .75, .15, 1) forwards; }
+@keyframes wheel-spin { from { transform: rotate(0deg); } to { transform: rotate(var(--final)); } }
+.wheel-pointer {
+  position: absolute; top: -6px; left: 50%; margin-left: -14px; z-index: 1;
+  border: 14px solid transparent; border-top: 26px solid var(--gold); border-bottom: 0;
+  filter: drop-shadow(0 2px 4px #000);
+}
+.wheel-result { display: grid; gap: 4px; margin: 0; opacity: 0; animation: rise .5s ease-out 5.1s forwards; }
+.wheel-result b { font-size: 2.2rem; color: #fff; text-shadow: 0 0 20px #d9542b; }
+@media (prefers-reduced-motion: reduce) { .wheel-spin { animation-duration: .01s; } .wheel-result { animation-delay: 0s; } }
+
+/* ---- penalty card (Report tab) */
+.penalty { margin-top: 14px; padding: 12px 14px; border-radius: 14px; border: 1px solid var(--ember); background: linear-gradient(160deg, #2a120a, #1b1812); text-align: center; }
+.penalty .kicker { font-size: .75rem; letter-spacing: .08em; text-transform: uppercase; color: #ffb49a; }
+.penalty b.display { display: block; margin: 4px 0 0; font-size: 1.15rem; color: #fff; }
+.penalty .btn { width: 100%; margin-top: 8px; }
+
+/* ---- cold rows, rivalry, Tyler's record */
+.board li.cold { opacity: .55; filter: grayscale(.6); }
+.chip-cold { color: #9fb3c8; border-color: #3a4a5a; background: #141a20; }
+.chip-rival { color: #ffd6a0; border-color: #9c4a1c; background: #2a1a0e; }
+.chip-master { color: #1a1406; background: linear-gradient(180deg, #d8f0ff, #8ec5e8); border-color: #8ec5e8; }
+.record { list-style: none; padding: 0; margin: 0; display: grid; gap: 6px; }
+.record li { display: flex; align-items: center; gap: 8px; }
+.record .wl { margin-left: auto; font-variant-numeric: tabular-nums; font-weight: 700; }
+.record .wl .l { color: var(--ember); }
+.record-foot { margin: 10px 0 0; font-size: .95rem; }
+.race-card.master .race-title { color: #bfe3f7; }
+.pending-penalty { margin: 8px 0 0; padding: 6px 10px; border-radius: 10px; background: #2a120a; border: 1px dashed var(--ember); font-size: .92rem; }
+.pending-penalty b { color: #fff; }
