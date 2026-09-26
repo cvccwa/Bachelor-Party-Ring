@@ -1,5 +1,6 @@
 "use client";
 
+import { Flame } from "@/components/Flame";
 import { SidePrizes } from "@/components/SidePrizes";
 import { SoundToggle } from "@/components/SoundToggle";
 import { GAME_LABELS } from "@/lib/config";
@@ -69,7 +70,7 @@ export function HallOfLegends({ raw, derived }: { raw: Raw; derived: Derived }) 
               <b className="display">
                 {tale.curse.status === "lifted"
                   ? `💍 The ring returned — by ${tale.curse.reason === "streak" ? "a winning streak" : "reaching the mark"}`
-                  : "🔥 Still cursed. The ring remains lost."}
+                  : <><Flame /> Still cursed. The ring remains lost.</>}
               </b>
               <ul className="tale">
                 <li>

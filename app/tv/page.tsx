@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { Flame } from "@/components/Flame";
 import { GameIcon } from "@/components/GameIcon";
 import { HallOfLegends } from "@/components/HallOfLegends";
 import { JoinQR } from "@/components/JoinQR";
@@ -93,7 +94,7 @@ export default function TvPage() {
             <section className={`curse ${curse.status === "lifted" ? "lifted" : ""}`}>
               {curse.status === "cursed" ? (
                 <>
-                  <b className="display">🔥 {derived.tyler.name} is cursed</b>
+                  <b className="display curse-title"><Flame /> {derived.tyler.name} is cursed</b>
                   <p className="muted" style={{ margin: "6px 0 0" }}>
                     Streak{" "}
                     <span className="streak">

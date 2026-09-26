@@ -1,6 +1,7 @@
 "use client";
 
 import { useLayoutEffect, useRef } from "react";
+import { Flame } from "@/components/Flame";
 import { GameIcon } from "@/components/GameIcon";
 import { SIDE_PRIZE_SHORT } from "@/lib/config";
 import { rankTitle, type CurseState, type Standing } from "@/lib/scoring";
@@ -76,7 +77,7 @@ export function Standings({ standings, threshold, curse, winnerId, myId, hotIds,
               <b>
                 {winnerId === s.player.id && "👑 "}
                 {s.player.name}
-                {cursed && " 🔥"}
+                {cursed && <> <Flame /></>}
                 {ringBack && " 💍"}
               </b>
               <span className="row" style={{ gap: 6 }}>

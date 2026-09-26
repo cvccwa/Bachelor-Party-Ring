@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { buzz } from "@/components/Burst";
+import { Flame } from "@/components/Flame";
 import { GameIcon } from "@/components/GameIcon";
 import { useToast } from "@/components/Toast";
 import { CONFIG, GAME_LABELS } from "@/lib/config";
@@ -74,7 +75,7 @@ export function TylerLost() {
   return (
     <>
       <section className="curse tyler-lost">
-        <b className="display">🔥 Saw {tyler.name} lose?</b>
+        <b className="display curse-title"><Flame /> Saw {tyler.name} lose?</b>
         <p className="muted" style={{ margin: "6px 0 0" }}>
           Anyone can log it. Each loss costs him 1 while he&apos;s cursed.
         </p>

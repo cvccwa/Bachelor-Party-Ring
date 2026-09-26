@@ -2,6 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { Flame } from "@/components/Flame";
 import { crownLine, ringBackLine, tylerLostLine } from "@/lib/flavor";
 import { detectMoments, type Moment, type Recap } from "@/lib/moments";
 import { useParty, type Raw } from "@/lib/party";
@@ -195,7 +196,7 @@ export function Moments() {
         ))}
       </div>
       <div className="splash-card">
-        <div className="splash-icon">{current.icon}</div>
+        <div className="splash-icon">{current.variant === "curse" ? <Flame size="1em" className="flame-big" /> : current.icon}</div>
         <h2 className="splash-title">{current.title}</h2>
         <p className="splash-line">{current.line}</p>
         <span className="splash-hint">tap to continue</span>
