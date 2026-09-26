@@ -504,3 +504,5 @@ body::after {
 /* swipe-to-dismiss toasts */
 .toast { touch-action: pan-y; user-select: none; -webkit-user-select: none; cursor: grab; transition: transform .18s ease-out, opacity .18s ease-out; }
 .toast.dragging { transition: none; cursor: grabbing; }
+.tyler-taunt { text-align: center; }
+.tyler-taunt b { font-size: 1.15rem; }
