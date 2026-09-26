@@ -60,7 +60,7 @@ export default function TvPage() {
     ...(record && record.wins + record.losses > 0 ? ["record"] : []),
   ];
   const card = cards[slide % cards.length];
-  const feed = [...raw.events].sort((a, b) => b.seq - a.seq).slice(0, 5);
+  const feed = [...raw.events].sort((a, b) => b.seq - a.seq).slice(0, 8); // extras are clipped by the panel height
 
   return (
     <TvStage>
@@ -175,7 +175,7 @@ export default function TvPage() {
             )}
           </section>
 
-          <section className="panel">
+          <section className="panel tv-feed">
             <h2 style={{ marginTop: 0 }}>Latest deeds</h2>
             <ul className="feed">
               {feed.map((e) => {

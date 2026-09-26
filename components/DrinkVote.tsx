@@ -130,7 +130,9 @@ export function DrinkStatus() {
   return (
     <section className="drink drink-status">
       <div className="row">
-        <b className="display">🍺 Drink vote</b>
+        <b className="display">
+          🍺 Drink vote · {d.votes}/{d.needed}
+        </b>
         <span className="spacer" />
         <span className="drink-tally" aria-label={`${d.votes} of ${d.needed} votes`}>
           {Array.from({ length: d.needed }, (_, i) => (
