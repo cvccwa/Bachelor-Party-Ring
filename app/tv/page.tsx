@@ -9,6 +9,7 @@ import { HallOfLegends } from "@/components/HallOfLegends";
 import { JoinQR } from "@/components/JoinQR";
 import { RoadToDoom } from "@/components/RoadToDoom";
 import { SidePrizes } from "@/components/SidePrizes";
+import { FullscreenToggle } from "@/components/FullscreenToggle";
 import { SoundToggle } from "@/components/SoundToggle";
 import { Standings } from "@/components/Standings";
 import { TvStage } from "@/components/TvStage";
@@ -77,6 +78,7 @@ export default function TvPage() {
           </span>
         )}
         <span className="chip chip-gold tv-goal">First to {settings.win_threshold} is crowned</span>
+        <FullscreenToggle />
         <SoundToggle />
       </header>
 
