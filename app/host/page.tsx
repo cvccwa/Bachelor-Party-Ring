@@ -160,8 +160,8 @@ function Panel({ pin, onLock }: { pin: string; onLock: () => void }) {
         <div style={{ display: "grid", gap: 6 }}>
           {raw.players.map((p) => (
             <RosterRow
-              key={p.id + p.name}
-              name={p.name}
+              key={p.id + (p.realName ?? p.name)}
+              name={p.realName ?? p.name}
               tag={p.is_tyler ? "Ringbearer" : undefined}
               onSave={(name) => call("admin_upsert_player", { p_id: p.id, p_name: name }, "Renamed.")}
             />

@@ -3,8 +3,10 @@
 import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Flame } from "@/components/Flame";
+import { PenaltyWheel } from "@/components/PenaltyWheel";
+import { MASTERY_TITLE } from "@/lib/config";
 import { crownLine, drinkDoneLine, drinkOrderedLine, ringBackLine, tylerLostLine } from "@/lib/flavor";
-import { detectDrink, detectMoments, drinkSeen, type DrinkSeen, type Moment, type Recap } from "@/lib/moments";
+import { detectDrink, detectMoments, detectThrone, drinkSeen, type DrinkSeen, type Moment, type Recap } from "@/lib/moments";
 import { useParty, type Raw } from "@/lib/party";
 import { setSplashActive } from "@/lib/splashState";
 import { play } from "@/lib/sound";
@@ -15,13 +17,16 @@ import type { Settings } from "@/lib/scoring";
 // someone is crowned), shown live on every open screen, plus a one-time
 // "while you were away" recap when the app is reopened.
 
-type Seen = { seq: number; settings: Settings; drink?: DrinkSeen };
+type Seen = { seq: number; settings: Settings; drink?: DrinkSeen; throne?: string | null };
+type Variant = "curse" | "ring" | "crown" | "rank" | "drink" | "throne" | "gollum";
 type Splash =
-  | { id: number; type: "moment"; variant: "curse" | "ring" | "crown" | "rank" | "drink"; icon: string; title: string; line: string }
+  | { id: number; type: "moment"; variant: Variant; icon: string; title: string; line: string; penalty?: string }
   | { id: number; type: "recap"; recap: Recap };
 
 const SEEN_KEY = "bpr.seen";
 const MOMENT_MS = 5000;
+const PENALTY_MS = 8000; // time to read the penalty
+const WHEEL_MS = 11000; // TV: spin, land, then read
 const RECAP_MS = 12000;
 
 function loadSeen(): Seen | null {
@@ -41,10 +46,52 @@ function saveSeen(seen: Seen) {
   }
 }
 
-function toSplash(m: Moment, id: number): Splash {
+const THRONE_LINES = [
+  "The crown is within reach. Everyone else: do something about it.",
+  "A new ruler sits atop the Fellowship. For now.",
+  "Long may they reign. (About ten minutes, probably.)",
+];
+
+function toSplash(m: Moment, id: number, penalty?: string): Splash {
   switch (m.kind) {
     case "tylerLost":
-      return { id, type: "moment", variant: "curse", icon: "🔥", title: `Tyler lost ${m.game}`, line: tylerLostLine() };
+      return { id, type: "moment", variant: "curse", icon: "🔥", title: `Tyler lost ${m.game}`, line: tylerLostLine(), penalty };
+    case "throne":
+      return {
+        id,
+        type: "moment",
+        variant: "throne",
+        icon: "🏰",
+        title: m.mine ? "You seize the throne!" : `${m.playerName} seizes the throne!`,
+        line: THRONE_LINES[id % THRONE_LINES.length],
+      };
+    case "gollum":
+      return m.on
+        ? {
+            id,
+            type: "moment",
+            variant: "gollum",
+            icon: "🐟",
+            title: "Tyler has become Sméagol",
+            line: "The ring has twisted him. He answers to Sméagol until he climbs back above zero.",
+          }
+        : {
+            id,
+            type: "moment",
+            variant: "ring",
+            icon: "🧍",
+            title: "Sméagol is Tyler again",
+            line: "Back above zero. He remembers his name. Mostly.",
+          };
+    case "mastery":
+      return {
+        id,
+        type: "moment",
+        variant: "crown",
+        icon: "🧭",
+        title: m.mine ? `You're the ${MASTERY_TITLE}!` : `${m.playerName}: ${MASTERY_TITLE}!`,
+        line: "Won every game at least once. A true jack of all trades.",
+      };
     case "ringBack":
       return { id, type: "moment", variant: "ring", icon: "💍", title: "The ring returns!", line: ringBackLine(m.reason) };
     case "rankUp":
@@ -72,6 +119,16 @@ function toSplash(m: Moment, id: number): Splash {
   }
 }
 
+const SOUNDS = {
+  curse: "curse",
+  gollum: "curse",
+  ring: "ring",
+  rank: "ring",
+  drink: "ring",
+  crown: "crown",
+  throne: "crown",
+} as const;
+
 const RANK_ICONS: Record<string, string> = { Hobbit: "🍃", Ranger: "🏹", "Elf-lord": "🌟", Crowned: "👑" };
 const RANK_LINES: Record<string, string> = {
   Hobbit: "Back on solid ground. Second breakfast awaits.",
@@ -92,6 +149,12 @@ function momentLine(m: Moment): string {
       return "🍺 The Fellowship voted — Tyler owed a drink";
     case "drinkDone":
       return `🍻 Tyler drank${m.witness ? ` (seen by ${m.witness})` : ""}`;
+    case "throne":
+      return `🏰 ${m.mine ? "You" : m.playerName} took the lead`;
+    case "gollum":
+      return m.on ? "🐟 Tyler fell below zero and became Sméagol" : "🧍 Sméagol climbed back — he's Tyler again";
+    case "mastery":
+      return `🧭 ${m.mine ? "You" : m.playerName} won every game — ${MASTERY_TITLE}`;
     case "tylerLost":
       return "";
   }
@@ -119,7 +182,13 @@ export function Moments() {
     if (seen.current === undefined) seen.current = loadSeen();
     const maxSeq = raw.events.reduce((m, e) => Math.max(m, e.seq), 0);
     const prev = seen.current;
-    const next: Seen = { seq: Math.max(maxSeq, prev?.seq ?? 0), settings: raw.settings, drink: drinkSeen(raw.drinkOrder) };
+    const throne = detectThrone(prev ? prev.throne : null, raw.players, raw.events, raw.settings, me.current);
+    const next: Seen = {
+      seq: Math.max(maxSeq, prev?.seq ?? 0),
+      settings: raw.settings,
+      drink: drinkSeen(raw.drinkOrder),
+      throne: throne.throne,
+    };
     seen.current = next;
     saveSeen(next);
 
@@ -128,13 +197,20 @@ export function Moments() {
     if (!prev || quiet.current) return; // first ever visit, or host panel
 
     const found = detectMoments(raw.players, raw.events, raw.settings, prev, me.current);
-    const moments = [...detectDrink(prev.drink, raw.drinkOrder, raw.players), ...found.moments];
+    const moments = [
+      ...detectDrink(prev.drink, raw.drinkOrder, raw.players),
+      ...found.moments,
+      // the crown outranks the throne
+      ...(throne.moment && !found.moments.some((m) => m.kind === "crowned") ? [throne.moment] : []),
+    ];
     const { newCount } = found;
     const recap = { ...found.recap, moments };
     if (wasAway) {
       if (newCount > 0 || moments.length > 0) setQueue((q) => [...q, { id: nextId.current++, type: "recap", recap }]);
     } else if (moments.length > 0) {
-      setQueue((q) => [...q, ...moments.map((m) => toSplash(m, nextId.current++))]);
+      const penaltyFor = (m: Moment) =>
+        m.kind === "tylerLost" ? raw.penalties.find((p) => p.event_id === m.eventId)?.penalty : undefined;
+      setQueue((q) => [...q, ...moments.map((m) => toSplash(m, nextId.current++, penaltyFor(m)))]);
     }
   }, []);
 
@@ -151,19 +227,22 @@ export function Moments() {
   }, [subscribe, onSnapshot]);
 
   const current = queue[0];
+  const onTv = path.startsWith("/tv");
   const dismiss = useCallback(() => setQueue((q) => q.slice(1)), []);
 
   useEffect(() => {
     setSplashActive(!!current);
-    if (current?.type === "moment") play(current.variant === "rank" || current.variant === "drink" ? "ring" : current.variant);
+    if (current?.type === "moment") play(SOUNDS[current.variant]);
   }, [current]);
   useEffect(() => () => setSplashActive(false), []);
 
   useEffect(() => {
     if (!current) return;
-    const t = setTimeout(dismiss, current.type === "recap" ? RECAP_MS : MOMENT_MS);
+    const ms =
+      current.type === "recap" ? RECAP_MS : current.penalty ? (onTv ? WHEEL_MS : PENALTY_MS) : MOMENT_MS;
+    const t = setTimeout(dismiss, ms);
     return () => clearTimeout(t);
-  }, [current, dismiss]);
+  }, [current, dismiss, onTv]);
 
   if (!current) return null;
 
@@ -209,7 +288,19 @@ export function Moments() {
       <div className="splash-card">
         <div className="splash-icon">{current.variant === "curse" ? <Flame size="1em" className="flame-big" /> : current.icon}</div>
         <h2 className="splash-title">{current.title}</h2>
-        <p className="splash-line">{current.line}</p>
+        {current.penalty && onTv ? (
+          <PenaltyWheel penalty={current.penalty} />
+        ) : (
+          <>
+            <p className="splash-line">{current.line}</p>
+            {current.penalty && (
+              <p className="splash-penalty">
+                <span>⚖️ The wheel decrees</span>
+                <b>{current.penalty}</b>
+              </p>
+            )}
+          </>
+        )}
         <span className="splash-hint">tap to continue</span>
       </div>
     </div>

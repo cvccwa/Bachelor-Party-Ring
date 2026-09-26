@@ -1,12 +1,20 @@
 "use client";
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import { CONFIG } from "./config";
+import { CONFIG, GOLLUM_NAME } from "./config";
 import { derive, type Derived, type Player, type PointEvent, type Settings } from "./scoring";
 import { supabase } from "./supabase";
 
 export type DrinkVote = { player_id: string; created_at: string };
 export type DrinkOrder = { id: string; ordered_at: string; drunk_at: string | null; witness_id: string | null };
+export type Penalty = {
+  id: string;
+  event_id: string;
+  penalty: string;
+  created_at: string;
+  done_at: string | null;
+  witness_id: string | null;
+};
 export type Raw = {
   players: Player[];
   events: PointEvent[];
@@ -14,6 +22,8 @@ export type Raw = {
   drinkVotes: DrinkVote[];
   // The latest drink order (pending or last paid), if any.
   drinkOrder: DrinkOrder | null;
+  // Curse-spin penalties, oldest first.
+  penalties: Penalty[];
 };
 
 const DEFAULT_SETTINGS: Settings = {
@@ -24,14 +34,15 @@ const DEFAULT_SETTINGS: Settings = {
 };
 
 async function fetchAll(): Promise<Raw> {
-  const [p, e, s, v, o] = await Promise.all([
+  const [p, e, s, v, o, pen] = await Promise.all([
     supabase.from("players").select("id,name,is_tyler,sort_order").order("sort_order"),
     supabase.from("point_events").select("id,seq,player_id,game,delta,created_at").order("seq"),
     supabase.from("settings").select("win_threshold,tyler_streak_length,curse_enabled,ended_at").eq("id", 1).maybeSingle(),
     supabase.from("drink_votes").select("player_id,created_at"),
     supabase.from("drink_orders").select("id,ordered_at,drunk_at,witness_id").order("ordered_at", { ascending: false }).limit(1),
+    supabase.from("tyler_penalties").select("id,event_id,penalty,created_at,done_at,witness_id").order("created_at"),
   ]);
-  const err = p.error ?? e.error ?? s.error ?? v.error ?? o.error;
+  const err = p.error ?? e.error ?? s.error ?? v.error ?? o.error ?? pen.error;
   if (err) throw err;
   return {
     players: (p.data ?? []) as Player[],
@@ -39,6 +50,7 @@ async function fetchAll(): Promise<Raw> {
     settings: (s.data as Settings | null) ?? DEFAULT_SETTINGS,
     drinkVotes: (v.data ?? []) as DrinkVote[],
     drinkOrder: ((o.data ?? [])[0] as DrinkOrder | undefined) ?? null,
+    penalties: (pen.data ?? []) as Penalty[],
   };
 }
 
@@ -97,6 +109,7 @@ export function PartyProvider({ children }: { children: ReactNode }) {
       .on("postgres_changes", { event: "*", schema: "public", table: "settings" }, onChange)
       .on("postgres_changes", { event: "*", schema: "public", table: "drink_votes" }, onChange)
       .on("postgres_changes", { event: "*", schema: "public", table: "drink_orders" }, onChange)
+      .on("postgres_changes", { event: "*", schema: "public", table: "tyler_penalties" }, onChange)
       // (re)subscribing may have missed changes, so refetch whenever we connect
       .subscribe((status) => status === "SUBSCRIBED" && onChange());
     const poll = setInterval(onChange, CONFIG.pollFallbackMs);
@@ -110,14 +123,20 @@ export function PartyProvider({ children }: { children: ReactNode }) {
     };
   }, [refresh]);
 
-  const derived = useMemo(
-    () => (raw ? derive(raw.players, raw.events, raw.settings) : null),
-    [raw],
-  );
+  // Gollum mode: while Tyler is below zero, every screen calls him Sméagol.
+  // (The roster name stays in `realName`, e.g. for the host's rename box.)
+  const view = useMemo(() => {
+    if (!raw) return { raw: null, derived: null };
+    const d = derive(raw.players, raw.events, raw.settings);
+    const t = d.tyler;
+    if (!t || (d.totals.get(t.id) ?? 0) >= 0) return { raw, derived: d };
+    const players = raw.players.map((p) => (p.id === t.id ? { ...p, name: GOLLUM_NAME, realName: p.name } : p));
+    return { raw: { ...raw, players }, derived: derive(players, raw.events, raw.settings) };
+  }, [raw]);
 
   const value = useMemo(
-    () => ({ raw, derived, error, refresh, subscribe }),
-    [raw, derived, error, refresh, subscribe],
+    () => ({ raw: view.raw, derived: view.derived, error, refresh, subscribe }),
+    [view, error, refresh, subscribe],
   );
   return <PartyCtx.Provider value={value}>{children}</PartyCtx.Provider>;
 }

@@ -6,6 +6,7 @@ import { buzz, useBurst } from "@/components/Burst";
 import { DrinkVote } from "@/components/DrinkVote";
 import { Flame } from "@/components/Flame";
 import { GameIcon } from "@/components/GameIcon";
+import { PenaltyCard } from "@/components/PenaltyCard";
 import { TylerLost } from "@/components/TylerLost";
 import { CONFIG, GAME_LABELS, TYLER_REPEAT_EXEMPT } from "@/lib/config";
 import { tylerWinLine, winLine } from "@/lib/flavor";
@@ -128,6 +129,7 @@ export default function ReportPage() {
         ))}
       </div>
       <TylerLost />
+      <PenaltyCard />
       <DrinkVote />
       {layer}
     </>

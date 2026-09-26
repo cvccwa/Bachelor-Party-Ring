@@ -2,7 +2,14 @@
 // stored totals. Replays events in `seq` order (strict insertion order).
 // The ring-back replay mirrors private.tyler_ring_back() in the migration.
 
-export type Player = { id: string; name: string; is_tyler: boolean; sort_order: number };
+export type Player = {
+  id: string;
+  name: string;
+  is_tyler: boolean;
+  sort_order: number;
+  /** Set when `name` is a display override (Gollum mode); the roster name. */
+  realName?: string;
+};
 export type PointEvent = {
   id: string;
   seq: number;
